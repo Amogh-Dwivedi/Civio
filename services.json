@@ -1,15 +1,38 @@
 [
   {
-    "id": "craft-sample-keychain",
+    "id": "craft-science-wall-clock",
     "category": "handicraft",
-    "title": "Handmade Crochet Keychain (Sample)",
-    "seller": "Civio Demo Artisan",
-    "price": 149,
-    "distance_km": 1.5,
-    "rating": 4.8,
-    "review_count": 12,
-    "emoji": "🧶",
-    "images": ["sample-keychain.svg"]
+    "title": "Handmade Science Wall Clock",
+    "seller": "MeenakshiIsTaken",
+    "price": 899,
+    "distance_km": 2,
+    "rating": 0,
+    "review_count": 0,
+    "emoji": "🕰️",
+    "images": [
+      "chemistry-clock.jpg",
+      "maths-clock.jpg"
+    ],
+    "delivery_days": 7,
+    "description": "Handcrafted science-themed wall clock. Chemistry and mathematics designs available."
+  },
+  {
+    "id": "craft-animal-tote",
+    "category": "handicraft",
+    "title": "Hand-painted Animal Tote Bag",
+    "seller": "MeenakshiIsTaken",
+    "price": 499,
+    "distance_km": 2,
+    "rating": 0,
+    "review_count": 0,
+    "emoji": "👜",
+    "images": [
+      "flamingo-tote.jpg",
+      "cat-tote.jpg",
+      "giraffe-tote.jpg"
+    ],
+    "delivery_days": 5,
+    "description": "Reusable fabric tote bag with playful flamingo, cat or giraffe artwork."
   },
   {
     "id": "food-sample-tiffin",

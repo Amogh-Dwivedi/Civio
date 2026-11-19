@@ -693,6 +693,22 @@
   .civio-review-stars button.selected{color:var(--gold-600)}
   .civio-review-entry{border-top:1px solid var(--line);padding:10px 0;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
   .civio-review-entry small{display:block;color:var(--ink-soft);margin-top:3px}
+
+  /* Product galleries: compact arrows only, original Pinterest layout retained. */
+  .craft-gallery .craft-slide img{display:block;width:100%;height:100%;object-fit:cover}
+  .craft-gallery .craft-arrow{position:absolute;top:50%;transform:translateY(-50%);z-index:6;
+    width:29px;height:29px;border:0;border-radius:50%;background:rgba(255,252,246,.90);
+    color:#6B3A1F;display:flex;align-items:center;justify-content:center;
+    font-size:20px;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.13);
+    transition:background .18s,transform .18s}
+  .craft-gallery .craft-arrow:hover{background:#fff;transform:translateY(-50%) scale(1.08)}
+  .craft-gallery .craft-arrow.prev{left:6px}.craft-gallery .craft-arrow.next{right:6px}
+  .craft-gallery .craft-arrow:disabled{opacity:.25;cursor:default}
+  .product-hero .product-gallery-arrow{position:absolute;top:50%;transform:translateY(-50%);
+    z-index:5;border:0;border-radius:50%;background:rgba(255,252,246,.9);
+    width:36px;height:36px;color:#6B3A1F;font-size:23px;cursor:pointer}
+  .product-hero .product-gallery-arrow.prev{left:9px}
+  .product-hero .product-gallery-arrow.next{right:9px}
 </style>
 </head>
 <body>
@@ -1041,6 +1057,12 @@
     }catch(err){console.warn('Civio listings:',err.message);}
   }
   await loadServices();
+  // Replaced by the two real MeenakshiIsTaken listings from services.json.
+  document.querySelectorAll('#listings .card[data-cat="handicraft"]').forEach(card=>{
+    const title=card.querySelector('.card-title')?.textContent?.trim();
+    if(['Handmade Macrame Wall Hanging','Personalised Knitted Sweater'].includes(title))card.remove();
+  });
+
   const cards = [...document.querySelectorAll('.card')];
   cards.forEach(card=>{if(!card.dataset.id)card.dataset.id='legacy-'+card.dataset.cat+'-'+(card.querySelector('.card-title')?.textContent||'item').trim().toLowerCase().replace(/[^a-z0-9]+/g,'-');});
   const emptyMsg = document.getElementById('emptyMsg');
@@ -1207,9 +1229,20 @@
       if(sourceImage){const item=serviceCatalog.find(x=>x.id===card.dataset.id);if(item?.images?.length){gallery.querySelector('.craft-track').innerHTML=item.images.map(file=>`<div class="craft-slide"><img src="assets/services/${encodeURIComponent(file)}" alt="${esc(item.title)}" style="width:100%;height:100%;object-fit:cover"></div>`).join('');gallery.querySelector('.craft-dots').innerHTML=item.images.map((_,i)=>`<span class="craft-dot${i===0?' active':''}"></span>`).join('');}}if(fav)gallery.appendChild(fav); oldThumb.replaceWith(gallery);
       const track=gallery.querySelector('.craft-track'),dots=[...gallery.querySelectorAll('.craft-dot')]; let startX=0,startY=0,moved=false;
       const go=i=>{i=Math.max(0,Math.min(dots.length-1,i));gallery.dataset.index=i;track.style.transform=`translateX(-${i*100}%)`;dots.forEach((d,n)=>d.classList.toggle('active',n===i));};
+      if(dots.length>1){
+        const prev=document.createElement('button'),next=document.createElement('button');
+        prev.className='craft-arrow prev';next.className='craft-arrow next';
+        prev.type=next.type='button';prev.textContent='‹';next.textContent='›';
+        prev.setAttribute('aria-label','Previous product photo');next.setAttribute('aria-label','Next product photo');
+        const sync=()=>{prev.disabled=Number(gallery.dataset.index)===0;next.disabled=Number(gallery.dataset.index)===dots.length-1;};
+        [prev,next].forEach(b=>b.addEventListener('pointerdown',e=>e.stopPropagation()));
+        prev.onclick=e=>{e.stopPropagation();go(Number(gallery.dataset.index)-1);sync();};
+        next.onclick=e=>{e.stopPropagation();go(Number(gallery.dataset.index)+1);sync();};
+        gallery.append(prev,next);sync();
+      }
       gallery.addEventListener('pointerdown',e=>{startX=e.clientX;startY=e.clientY;moved=false;gallery.setPointerCapture?.(e.pointerId);});
       gallery.addEventListener('pointermove',e=>{if(Math.abs(e.clientX-startX)>8)moved=true;});
-      gallery.addEventListener('pointerup',e=>{const dx=e.clientX-startX,dy=e.clientY-startY;if(Math.abs(dx)>35&&Math.abs(dx)>Math.abs(dy)){go(Number(gallery.dataset.index)+(dx<0?1:-1));card.dataset.justSwiped='1';setTimeout(()=>delete card.dataset.justSwiped,120);} });
+      gallery.addEventListener('pointerup',e=>{const dx=e.clientX-startX,dy=e.clientY-startY;if(Math.abs(dx)>35&&Math.abs(dx)>Math.abs(dy)){go(Number(gallery.dataset.index)+(dx<0?1:-1));gallery.querySelector('.craft-arrow.prev')?.toggleAttribute('disabled',Number(gallery.dataset.index)===0);gallery.querySelector('.craft-arrow.next')?.toggleAttribute('disabled',Number(gallery.dataset.index)===dots.length-1);card.dataset.justSwiped='1';setTimeout(()=>delete card.dataset.justSwiped,120);} });
       gallery.addEventListener('click',e=>{if(moved)e.stopPropagation();});
     });
   }
@@ -1254,6 +1287,37 @@
   function openCraftProduct(card){
     activeCraftCard=card;const d=craftProductData(card),reviews=craftReviews[d.name]||[];
     craftProductBody.innerHTML=`<div class="product-hero" id="productHero">${d.image?`<img src="${d.image}" alt="${esc(d.name)}" style="width:100%;height:100%;object-fit:cover">`:`<span id="productHeroEmoji">${d.emoji}</span>`}<div class="product-hero-actions"><button id="productWish" aria-label="Add to wishlist">♡</button><button id="productShare" aria-label="Share product">↗</button></div><div class="product-gallery-dots"><span class="active"></span><span></span><span></span><span></span></div></div><div class="product-rating-bar"><button type="button" class="rating-chip review-jump" id="craftReviewJump" aria-label="Read ratings and reviews"><span class="review-star">★</span><span class="review-score">${(d.rating.match(/[0-9.]+/)||['4.8'])[0]}</span><span class="review-count">· ${(d.rating.match(/\((\d+)\)/)||['','0'])[1]} reviews</span></button></div><h2 class="product-title">${d.name}</h2><div class="product-seller">Sold by ${d.seller} · Civio artisan</div><div class="product-price">${d.price}</div><section class="product-section"><h3>Choose an option</h3><div class="variant-row">${d.variants.map((x,i)=>`<button class="variant-card${i===0?' active':''}" data-variant="${i}" aria-label="${d.variantNames[i]}">${x}</button>`).join('')}</div><p id="variantLabel" style="font-size:10.5px;color:var(--ink-soft);font-weight:700;margin:8px 1px 0">Selected: ${d.variantNames[0]}</p></section><section class="product-section"><h3>Delivery details</h3><div class="delivery-row"><div class="delivery-icon">⌂</div><div><b>Delivery to your saved address</b><span>Address can be selected or changed at checkout.</span></div></div><div class="delivery-row"><div class="delivery-icon">🚚</div><div><b>Estimated delivery: 7 days</b><span>Handicraft orders currently use a one-week delivery window after seller acceptance.</span></div></div><div class="delivery-row"><div class="delivery-icon">🏪</div><div><b>Sold by ${d.seller}</b><span>Order status and seller confirmation will be shown in Civio.</span></div></div><div class="work-tags"><span>7-day delivery</span><span>Secure order preview</span><span>Support available</span></div></section><section class="product-section"><h3>Everything about this product</h3><div class="detail-tabs"><button class="detail-tab active" data-detail-tab="show">Showcase</button><button class="detail-tab" data-detail-tab="spec">Specifications</button><button class="detail-tab" data-detail-tab="desc">Description</button><button class="detail-tab" data-detail-tab="custom">Customisation</button></div><div class="detail-pane" id="craftDetailPane">${craftPane(d,'show')}</div></section><section class="product-section" id="craftReviews"><h3>Ratings & reviews</h3><div class="craft-review-summary"><div class="craft-review-score">${(d.rating.match(/[0-9.]+/)||['4.8'])[0]}</div><div><div class="craft-review-stars">★★★★★</div><div style="font-size:10px;color:var(--ink-soft);font-weight:700">Verified buyer feedback</div></div></div>${reviews.map(r=>`<div class="craft-review-item"><b>${r.name}</b><br>${r.text}${r.photo?`<img class="craft-review-photo" src="${r.photo}" alt="Photo shared with review">`:''}</div>`).join('')||'<div class="craft-review-item">No written reviews yet.</div>'}<div class="craft-review-form"><input type="text" id="craftReviewInput" placeholder="Write a review..."><label class="craft-photo-label" for="craftReviewPhoto" title="Add a photo">📷 <span style="margin-left:4px">Photo</span></label><input class="craft-photo-input" type="file" id="craftReviewPhoto" accept="image/*"><button id="craftReviewPost">Post</button></div><div class="craft-photo-preview" id="craftPhotoPreview"><img id="craftPhotoPreviewImg" alt="Selected review photo preview"><span id="craftPhotoName"></span><button class="craft-photo-remove" id="craftPhotoRemove" type="button" aria-label="Remove selected photo">×</button></div></section>`;
+    // The detail page uses the same photo collection as the listing thumbnail.
+    const listing=serviceCatalog.find(x=>x.id===card.dataset.id);
+    if(listing?.images?.length){
+      const hero=document.getElementById('productHero');
+      const files=listing.images;
+      let current=0,startX=0;
+      const display=()=>{
+        const img=hero.querySelector('img');
+        if(img){img.src='assets/services/'+encodeURIComponent(files[current]);img.alt=listing.title+' photo '+(current+1);}
+        hero.querySelectorAll('.product-gallery-dots span').forEach((dot,i)=>dot.classList.toggle('active',i===current));
+      };
+      const dots=hero.querySelector('.product-gallery-dots');
+      dots.innerHTML=files.map((_,i)=>'<span'+(i===0?' class="active"':'')+'></span>').join('');
+      if(files.length>1){
+        for(const [label,dir] of [['prev',-1],['next',1]]){
+          const b=document.createElement('button');b.type='button';b.className='product-gallery-arrow '+label;
+          b.textContent=dir===-1?'‹':'›';b.setAttribute('aria-label',dir===-1?'Previous photo':'Next photo');
+          b.onclick=()=>{current=(current+dir+files.length)%files.length;display();};
+          hero.appendChild(b);
+        }
+        hero.addEventListener('touchstart',e=>{startX=e.changedTouches[0].screenX;},{passive:true});
+        hero.addEventListener('touchend',e=>{const dx=e.changedTouches[0].screenX-startX;if(Math.abs(dx)>35){current=(current+(dx<0?1:-1)+files.length)%files.length;display();}},{passive:true});
+      }
+      display();
+      const days=Number(listing.delivery_days)||7;
+      craftProductBody.querySelectorAll('.delivery-row b,.delivery-row span,.work-tags span').forEach(el=>{
+        el.textContent=el.textContent.replace('Estimated delivery: 7 days','Estimated delivery: '+days+' days')
+          .replace('one-week delivery window','estimated '+days+'-day delivery window')
+          .replace('7-day delivery',days+'-day delivery');
+      });
+    }
     craftProductScreen.classList.add('show');
     document.getElementById('productWish').textContent=favouriteIds.has(listingId(card))?'♥':'♡';document.getElementById('productWish').onclick=async e=>{await saveFavourite(listingId(card));e.currentTarget.textContent=favouriteIds.has(listingId(card))?'♥':'♡';};
     const share=()=>shareCraftProduct(d);document.getElementById('productShare').onclick=share;document.getElementById('craftProductShare').onclick=share;
