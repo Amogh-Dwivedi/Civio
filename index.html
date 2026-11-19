@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Civio — Local help, made personal</title>
-<link rel="icon" type="image/png" href="logo.svg">
+<link rel="icon" type="image/svg+xml" href="assets/branding/logo.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -680,7 +680,7 @@
 <div class="app-shell">
   <!-- ============ LOGIN / SIGN-UP ENTRY SCREEN ============ -->
   <section class="auth-gate" id="authGate" aria-label="Civio login">
-    <div class="auth-brand"><img src="logo.svg" alt="Civio"><h1>Civio</h1><p>Local help, made personal</p></div>
+    <div class="auth-brand"><img src="assets/branding/logo.svg" alt="Civio"><h1>Civio</h1><p>Local help, made personal</p></div>
     <div class="auth-card">
       <h2 id="authTitle">Welcome back</h2><p class="auth-intro" id="authIntro">Sign in to discover trusted local services and tutors around you.</p>
       <form id="authForm">
@@ -703,7 +703,7 @@
   <!-- ============ SIDEBAR ============ -->
   <aside class="sidebar" id="sidebar" aria-hidden="true">
     <div class="sidebar-head">
-      <img src="logo.svg" alt="Civio">
+      <img src="assets/branding/logo.svg" alt="Civio">
       <div>
         <div class="sname">Civio</div>
         <div class="stag">Local help, made personal</div>
@@ -747,7 +747,7 @@
  
       <a class="sidebar-link" href="#">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 17v-1.5c2-1 2.6-2 2.6-3.2 0-1.4-1.2-2.3-2.6-2.3S9.4 10 9.3 11.2"/><circle cx="12" cy="17.7" r=".3" fill="currentColor"/></svg>
-        Help &amp; Support
+        Contact Us
       </a>
       <a class="sidebar-link" href="#">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="8"/><line x1="12" y1="11" x2="12" y2="16"/></svg>
@@ -770,13 +770,11 @@
     </button>
  
     <div class="brand-mark">
-      <img src="logo.svg" alt="Civio logo">
+      <img src="assets/branding/logo.svg" alt="Civio logo">
       <span>Civio</span>
     </div>
  
-    <button class="avatar-btn" aria-label="Account">
-     <img src="icon.jpg" alt="Account">
-    </button>
+    <button class="avatar-btn" aria-label="Account" title="Account"><span id="accountInitial" aria-hidden="true">G</span></button>
   </header>
  
   <!-- ============ SEARCH ============ -->
@@ -922,6 +920,7 @@
     document.querySelector('.sidebar-user .un').textContent='Hi, '+displayName.split(' ')[0];
     document.querySelector('.sidebar-user .us').textContent=displayName==='Guest'?'Browsing as guest':'Signed in to Civio';
     document.querySelector('.sidebar-user .ua').textContent=displayName==='Guest'?'G':displayName.charAt(0).toUpperCase();
+    document.getElementById('accountInitial').textContent=displayName==='Guest'?'G':displayName.charAt(0).toUpperCase();
     authGate.classList.add('hidden');setTimeout(()=>authGate.style.display='none',360);
   }
   authSwitch.addEventListener('click',()=>{authMode=authMode==='login'?'signup':'login';const signup=authMode==='signup';nameField.style.display=signup?'block':'none';authTitle.textContent=signup?'Create your account':'Welcome back';authIntro.textContent=signup?'Join Civio to save favourites, book services and personalise recommendations.':'Sign in to discover trusted local services and tutors around you.';authSubmit.textContent=signup?'Create account':'Sign in';authSwitchText.textContent=signup?'Already have an account?':'New to Civio?';authSwitch.textContent=signup?'Sign in':'Create account';authPassword.autocomplete=signup?'new-password':'current-password';authError.textContent='';});
@@ -984,7 +983,7 @@
   });
   if(civioDb){
     civioDb.auth.getUser().then(({data})=>{if(data?.user?.email_confirmed_at)setSessionUser(data.user);});
-    civioDb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){civioUser=null;favouriteIds.clear();syncHearts();} if(event==='PASSWORD_RECOVERY')setTimeout(()=>{const password=prompt('Enter your new password (at least 8 characters)');if(password?.length>=8)civioDb.auth.updateUser({password}).then(({error})=>alert(error?error.message:'Password updated.'));},100);});
+    civioDb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){civioUser=null;favouriteIds.clear();syncHearts();document.getElementById('accountInitial').textContent='G';document.querySelector('.sidebar-user .un').textContent='Hi, Guest';document.querySelector('.sidebar-user .us').textContent='Sign in to book & save';document.querySelector('.sidebar-user .ua').textContent='G';} if(event==='PASSWORD_RECOVERY')setTimeout(()=>{const password=prompt('Enter your new password (at least 8 characters)');if(password?.length>=8)civioDb.auth.updateUser({password}).then(({error})=>alert(error?error.message:'Password updated.'));},100);});
   }
   const menuBtn = document.getElementById('menuBtn');
   const sidebar = document.getElementById('sidebar');
@@ -1045,7 +1044,9 @@
       document.querySelectorAll('.sidebar-link').forEach(l=>l.classList.remove('current'));
       link.classList.add('current'); closeSidebar();
       if(link.textContent.toLowerCase().includes('saved')){const matches=cards.filter(c=>favouriteIds.has(listingId(c)));showMessage('Saved services',matches.length?matches.map(c=>esc(c.querySelector('.card-title')?.textContent)).join(' · '):'No saved services yet. Tap the heart on any listing.');}
+      else if(link.textContent.toLowerCase().includes('contact us')) showContactForm();
       else if(link.textContent.toLowerCase().includes('provider')) showProviderForm();
+      else if(link.textContent.toLowerCase().includes('about civio')) showAboutCivio();
       else if(link.textContent.toLowerCase().includes('booking')) showMessage('My Bookings','Your orders and bookings will appear here after sign-in. This prototype stores no real orders.');
     });
   });
@@ -1245,6 +1246,45 @@
     document.getElementById('modalOkay').onclick=()=>backdrop.classList.remove('show');
   }
 
+  // CONTACT DETAILS: edit these links whenever Civio social accounts are ready.
+  // Leave a social URL blank to display "Coming soon" without a broken link.
+  const CIVIO_CONTACT = {
+    email: 'amogh.d.wrk@gmail.com',
+    instagram: '', // Example: https://www.instagram.com/your_civio_handle/
+    linkedin: '',  // Example: https://www.linkedin.com/company/your-civio-page/
+    whatsapp: ''   // Example: https://wa.me/91XXXXXXXXXX
+  };
+  function showContactForm(){
+    const address = CIVIO_CONTACT.email;
+    const socials = [
+      ['Instagram', CIVIO_CONTACT.instagram],
+      ['LinkedIn', CIVIO_CONTACT.linkedin],
+      ['WhatsApp', CIVIO_CONTACT.whatsapp]
+    ];
+    const rows = socials.map(([name,url]) => {
+      // Only allow standard web links, never arbitrary schemes from edited settings.
+      const safe = /^https:\/\/[^\s]+$/i.test(url);
+      return `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line)"><span>${name}</span>${safe ? `<a href="${url.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}" target="_blank" rel="noopener noreferrer" style="color:var(--brown-600);font-weight:800;text-decoration:none">Visit ↗</a>` : `<span style="color:var(--ink-soft);font-size:12px">Coming soon</span>`}</div>`;
+    }).join('');
+    showModal('Contact Us', `<p style="margin:6px 0 14px;color:var(--ink-soft)">Questions, feedback or collaborations? Reach us directly.</p>
+      <div class="mini-panel" style="margin:0 0 12px"><div style="font-size:11px;color:var(--ink-soft);margin-bottom:5px">Email</div>
+      <a href="mailto:${address}" style="font-size:14px;color:var(--brown-700);overflow-wrap:anywhere;text-decoration:none">${address}</a></div>
+      <div style="font-size:13px;font-weight:800;margin:14px 0 4px">Find us on social media</div>${rows}
+      <button class="modal-action" id="contactDone" type="button">Close</button>`);
+    document.getElementById('contactDone').onclick=()=>backdrop.classList.remove('show');
+  }
+
+  // ABOUT CIVIO: content can be edited here without changing the website layout.
+  function showAboutCivio(){
+    showModal('About Civio', `<p style="margin:5px 0 12px;line-height:1.7">Civio is a hyperlocal marketplace connecting people who need everyday help with skilled individuals in their own community.</p>
+      <div class="mini-panel"><span style="font-size:11px;color:var(--ink-soft)">Our purpose</span><p style="margin:6px 0 0">Make local services easier to discover, compare and request, while helping talented students, homemakers and independent providers earn from their skills.</p></div>
+      <p style="margin:14px 0 8px">From handmade gifts and handicrafts to home-cooked meals and tutoring, Civio brings local needs and local skills together.</p>
+      <div class="work-tags"><span>Local talent</span><span>Personalised services</span><span>Community first</span></div>
+      <p style="font-size:11px;color:var(--ink-soft);margin-top:14px">Starting with the Dehradun community. Provider checks, availability and service quality are reviewed as the platform develops.</p>
+      <button class="modal-action" id="aboutDone" type="button">Close</button>`);
+    document.getElementById('aboutDone').onclick=()=>backdrop.classList.remove('show');
+  }
+
   const turnaround = {
     "Saree blouse":3,"Salwar kameez / suit":5,"Anarkali suit":5,"Lehenga choli":7,"Patiala salwar suit":3,
     "Sharara / gharara set":5,"Phulkari / Chikankari kurti":3,"Chaniya choli":7,"Angrakha":4,"Kediya":5,
@@ -1283,13 +1323,37 @@
       <div class="mini-panel" id="refundInfo">Standard item: return/refund may be requested if unused and undamaged, subject to the published return policy and applicable consumer law.</div>
       <button class="modal-action" id="craftCheckout">Continue to order preview</button>`;
   }
+  // Provider applications are stored in Supabase; they are never sent from the browser directly to a private inbox.
   function showProviderForm(){
-    showModal('Become a provider',`<p>Choose the provider path. All details here are a demo; applications are not submitted to a server.</p>
-      <label for="providerType">I want to join as</label><select id="providerType"><option>Handicraft seller</option><option>Home-cooked meal provider</option><option>Tutor applicant</option></select>
-      <label for="providerName">Name / business name</label><input id="providerName" placeholder="Enter your name">
-      <label for="providerContact">Contact email or phone</label><input id="providerContact" placeholder="Enter contact details">
-      <button class="modal-action" id="providerSubmit">Preview application</button>`);
-    document.getElementById('providerSubmit').onclick=()=>showMessage('Application preview','Your provider application preview is ready. In the production app, identity checks, document upload, interviews/approval (for tutors), and secure server submission must be implemented.');
+    if(!civioUser){showMessage('Sign in required','Please sign in with a verified Civio account before applying to become a provider.');return;}
+    showModal('Become a provider', `<p style="color:var(--ink-soft);margin:5px 0 10px">Tell us what you can offer. The Civio team will review your application and contact you using the details below.</p>
+      <form id="providerApplication">
+        <label for="providerType">I want to join as</label><select id="providerType" required><option value="handicraft">Handicraft seller</option><option value="food">Home-cooked meal provider</option><option value="tutor">Tutor</option><option value="other">Other local service</option></select>
+        <label for="providerName">Your full name</label><input id="providerName" maxlength="100" required autocomplete="name" placeholder="Your name">
+        <label for="providerPhone">Phone number</label><input id="providerPhone" type="tel" maxlength="20" required placeholder="10-digit Indian mobile number" autocomplete="tel">
+        <label for="providerLocation">Area / locality</label><input id="providerLocation" maxlength="120" required placeholder="e.g. Bidholi, Dehradun">
+        <label for="providerSkills">Your skills or services</label><textarea id="providerSkills" rows="4" maxlength="1500" required placeholder="What can you offer? Mention experience, sample work and availability."></textarea>
+        <div class="mini-panel">We will contact you if your application is shortlisted. Submitting this form does not mean you are verified or approved.</div>
+        <p id="providerError" role="status" style="color:#B73B32;font-size:12px;min-height:18px"></p>
+        <button class="modal-action" type="submit" id="providerSubmit">Submit application</button>
+      </form>`);
+    document.getElementById('providerName').value=civioUser.user_metadata?.full_name||'';
+    document.getElementById('providerApplication').addEventListener('submit',async e=>{
+      e.preventDefault();const errorBox=document.getElementById('providerError'),btn=document.getElementById('providerSubmit');
+      if(!civioDb||!civioUser){errorBox.textContent='Please sign in first.';return;}
+      const name=document.getElementById('providerName').value.trim();
+      const phone=document.getElementById('providerPhone').value.replace(/[\s()-]/g,'').trim();
+      const location=document.getElementById('providerLocation').value.trim();
+      const description=document.getElementById('providerSkills').value.trim();
+      if(name.length<2||location.length<2||description.length<15){errorBox.textContent='Please enter your name, locality and at least 15 characters about your skills.';return;}
+      if(!/^(?:\+91)?[6-9]\d{9}$/.test(phone)){errorBox.textContent='Enter a valid Indian mobile number.';return;}
+      btn.disabled=true;btn.textContent='Submitting…';errorBox.textContent='';
+      try{
+        const {error}=await civioDb.from('provider_applications').insert({user_id:civioUser.id,full_name:name,phone,locality:location,provider_type:document.getElementById('providerType').value,description});
+        if(error)throw error;
+        showMessage('Application received','Thank you! Your provider application has been submitted to the Civio team for review. We will contact you if we need more information.');
+      }catch(err){errorBox.textContent=err.message||'Could not submit. Please try again.';btn.disabled=false;btn.textContent='Submit application';}
+    });
   }
 
   const craftProductScreen=document.getElementById('craftProductScreen'),craftProductBody=document.getElementById('craftProductBody');

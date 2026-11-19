@@ -53,3 +53,12 @@ Live: signup, email confirmation, login, persistent session, logout, reset-passw
 - Use only trusted admins to edit `services.json` and upload images; do not accept arbitrary file uploads through this static site.
 - Back up your Supabase data periodically. A static GitHub repo cannot back up account data.
 - The old `index.html` has prototype text and nonfunctional checkout/booking controls; don't claim they process payments or create meetings.
+
+## Change the Civio logo and browser tab icon
+
+Replace `assets/branding/logo.svg` with your own logo (keep the same filename). This one file is used for the login screen, header, sidebar, and favicon/browser tab. The included image is a temporary placeholder, not your official Civio logo. If your actual logo is PNG, change the image paths in `index.html` and the favicon `type` to `image/png`.
+
+The round account button now shows the first letter of the signed-in user's full name (from Supabase metadata), or `G` for Guest. No profile image file is required.
+
+## About Us / Provider Applications
+See `PROVIDER_SETUP.md` and run `supabase/provider_applications.sql` before accepting applications.
