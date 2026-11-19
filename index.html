@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#8A4A28">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Civio — Local help, made personal</title>
+<link rel="icon" type="image/png" href="logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Nunito+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+ 
+  /* ============ THEME TOKENS ============ */
+  :root{
+    --brown-900:#3A1F10;
+    --brown-800:#4A2513;
+    --brown-700:#6B3A1F;
+    --brown-600:#8A4A28;
+    --brown-500:#A25931;
+    --brown-tint:#F3E3D2;
+    --gold-600:#D89620;
+    --gold-500:#EFAE2E;
+    --gold-400:#F4C15C;
+    --gold-tint:#FBEBC9;
+    --cream-page:#F6EEE1;
+    --cream-card:#FFFCF6;
+    --ink:#3A2415;
+    --ink-soft:#8A7863;
+    --line:#EBDFC9;
+    --shadow-color: 34, 20, 8;
+    --scrollbar-thumb: rgba(139,90,50,0.28);
+    color-scheme: light;
+  }
+  :root:not([data-theme="light"]) {
+    @media (prefers-color-scheme: dark) {
+      --cream-page:#241407;
+      --cream-card:#2F1B0D;
+      --brown-tint:#3A2313;
+      --ink:#F3E7D8;
+      --ink-soft:#C9B49A;
+      --line:#4A3220;
+      --scrollbar-thumb: rgba(239,174,46,0.22);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --cream-page:#241407;
+    --cream-card:#2F1B0D;
+    --brown-tint:#3A2313;
+    --ink:#F3E7D8;
+    --ink-soft:#C9B49A;
+    --line:#4A3220;
+    --scrollbar-thumb: rgba(239,174,46,0.22);
+    color-scheme: dark;
+  }
+ 
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:'Nunito Sans', -apple-system, sans-serif;
+    background: var(--brown-900);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+    padding-top: env(safe-area-inset-top,0px);
+    padding-bottom: env(safe-area-inset-bottom,0px);
+  }
+  html{ scroll-padding-top: env(safe-area-inset-top,0px); }
+ 
+  h1,h2,h3,.brand-font{ font-family:'Fraunces', serif; }
+ 
+  /* subtle page backdrop so the app-shell reads like a phone/app on desktop */
+  body{
+    background: radial-gradient(circle at 30% 0%, #5A3018 0%, #2A1608 65%);
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+  }
+ 
+  .app-shell{
+    position:relative;
+    width:100%;
+    max-width:432px;
+    height:100dvh;
+    background:var(--cream-page);
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    box-shadow: 0 30px 70px rgba(0,0,0,0.45);
+  }
+  @media (min-width:433px){
+    .app-shell{ margin:22px 0 22px; height:calc(100dvh - 44px); border-radius:28px; }
+  }
+ 
+  /* ============ SCROLLBAR (blends in) ============ */
+  .content{
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+  .content::-webkit-scrollbar{ width:5px; }
+  .content::-webkit-scrollbar-track{ background:transparent; }
+  .content::-webkit-scrollbar-thumb{
+    background:var(--scrollbar-thumb);
+    border-radius:10px;
+  }
+  .sidebar-nav::-webkit-scrollbar{ width:4px; }
+  .sidebar-nav::-webkit-scrollbar-track{ background:transparent; }
+  .sidebar-nav::-webkit-scrollbar-thumb{ background:rgba(255,255,255,0.18); border-radius:10px; }
+ 
+  /* ============ TOP BAR ============ */
+  .topbar{
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding: calc(14px + env(safe-area-inset-top,0px)) 14px 10px;
+    background:var(--cream-card);
+    border-bottom:1px solid var(--line);
+    position:relative;
+    z-index:5;
+  }
+  .icon-btn{
+    width:40px; height:40px;
+    border-radius:50%;
+    border:none;
+    background:var(--brown-tint);
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    color:var(--brown-600);
+    flex:0 0 auto;
+    transition: transform .18s cubic-bezier(.34,1.56,.64,1), background-color .2s ease, box-shadow .2s ease;
+  }
+  .icon-btn svg{ width:20px; height:20px; }
+  .icon-btn:hover{
+    background:var(--gold-tint);
+    color:var(--brown-700);
+    transform:translateY(-2px) scale(1.06);
+    box-shadow:0 6px 14px rgba(var(--shadow-color),0.18);
+  }
+  .icon-btn:active{ transform:scale(0.92); }
+ 
+  .brand-mark{ display:flex; align-items:center; gap:8px; }
+  .brand-mark img{ height:30px; width:auto; display:block; }
+  .brand-mark span{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:19px;
+    color:var(--brown-700);
+    letter-spacing:.2px;
+  }
+ 
+.avatar-btn{
+  width:40px; height:40px; border-radius:50%;
+  border:2px solid var(--gold-500);
+  background:var(--brown-600);
+  color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fraunces',serif; font-weight:700; font-size:15px;
+  cursor:pointer;
+  flex:0 0 auto;
+  overflow:hidden;
+  padding:0;
+  transition: transform .18s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease;
+}
+.avatar-btn img{
+  width:100%; height:100%;
+  object-fit:cover;
+  border-radius:50%;
+  display:block;
+}
+  .avatar-btn:hover{ transform:translateY(-2px) scale(1.06); box-shadow:0 6px 14px rgba(var(--shadow-color),0.22); }
+  .avatar-btn:active{ transform:scale(0.92); }
+ 
+  /* ============ SEARCH ============ */
+  .search-wrap{
+    flex:0 0 auto;
+    padding:12px 14px 10px;
+    background:var(--cream-card);
+    border-bottom:1px solid var(--line);
+  }
+  .search-box{
+    display:flex; align-items:center; gap:9px;
+    background:var(--cream-page);
+    border:1.5px solid var(--line);
+    border-radius:14px;
+    padding:10px 14px;
+    transition:border-color .2s ease, box-shadow .2s ease;
+  }
+  .search-box:focus-within{
+    border-color:var(--gold-500);
+    box-shadow:0 0 0 4px var(--gold-tint);
+  }
+  .search-box svg{ width:18px; height:18px; color:var(--ink-soft); flex:0 0 auto; }
+  .search-box input{
+    border:none; outline:none; background:transparent;
+    font-family:'Nunito Sans',sans-serif; font-size:14.5px; font-weight:600;
+    color:var(--ink); width:100%;
+  }
+  .search-box input::placeholder{ color:var(--ink-soft); font-weight:600; }
+ 
+  .chip-row{
+    display:flex; gap:8px; margin-top:11px; overflow-x:auto;
+    padding-bottom:2px;
+    scrollbar-width:none;
+  }
+  .chip-row::-webkit-scrollbar{ display:none; }
+  .chip{
+    flex:0 0 auto;
+    font-size:12.5px; font-weight:700;
+    padding:7px 14px;
+    border-radius:999px;
+    background:var(--brown-tint);
+    color:var(--brown-700);
+    border:1px solid transparent;
+    cursor:pointer;
+    white-space:nowrap;
+    transition: background-color .2s ease, color .2s ease, transform .15s ease;
+  }
+  .chip:hover{ transform:translateY(-1px); background:var(--gold-tint); }
+  .chip.active{ background:var(--brown-600); color:#fff; }
+ 
+  /* ============ CONTENT ============ */
+  .content{
+    flex:1 1 auto;
+    overflow-y:auto;
+    padding:16px 14px 18px;
+  }
+  .section-head{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin: 4px 2px 12px;
+  }
+  .section-head h2{
+    margin:0; font-size:18.5px; font-weight:700; color:var(--ink);
+  }
+  .section-head a{
+    font-size:12.5px; font-weight:700; color:var(--brown-600); text-decoration:none;
+  }
+  .section-head a:hover{ color:var(--gold-600); }
+ 
+  .listings{
+    display:flex; flex-direction:column; gap:14px;
+  }
+ 
+  .card{
+    background:var(--cream-card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    overflow:hidden;
+    cursor:pointer;
+    transition: transform .22s cubic-bezier(.22,1,.36,1), box-shadow .22s ease, border-color .22s ease;
+  }
+  .card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 14px 30px rgba(var(--shadow-color),0.16);
+    border-color:transparent;
+  }
+  .card:active{ transform:translateY(-1px) scale(0.995); }
+ 
+  .thumb{
+    height:132px;
+    position:relative;
+    display:flex; align-items:center; justify-content:center;
+    font-size:44px;
+    overflow:hidden;
+  }
+  .thumb::after{
+    content:"";
+    position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(0,0,0,0) 55%, rgba(0,0,0,0.16) 100%);
+  }
+  .thumb span{ transition: transform .35s cubic-bezier(.22,1,.36,1); z-index:1; }
+  .card:hover .thumb span{ transform:scale(1.14) rotate(-4deg); }
+ 
+  .thumb.food{ background:linear-gradient(135deg,#FBD08A,#F0964B); }
+  .thumb.tailoring{ background:linear-gradient(135deg,#9FD6D2,#4E9C97); }
+  .thumb.handicraft{ background:linear-gradient(135deg,#E9AFD0,#C868A0);}
+  .thumb.handicraft{ background:linear-gradient(135deg,#E9AFD0,#C868A0); }
+  .thumb.travel{ background:linear-gradient(135deg,#AEDFA0,#5FA85B);}
+  .thumb.travel{ background:linear-gradient(135deg,#AEDFA0,#5FA85B); }
+ 
+  .badge{
+    position:absolute; top:10px; left:10px;
+    background:rgba(255,255,255,0.92);
+    color:var(--brown-700);
+    font-size:10.5px; font-weight:800;
+    padding:4px 9px; border-radius:999px;
+    letter-spacing:.3px; text-transform:uppercase;
+    z-index:1;
+  }
+  .fav-btn{
+    position:absolute; top:8px; right:8px;
+    width:30px; height:30px; border-radius:50%;
+    border:none; background:rgba(255,255,255,0.9);
+    display:flex; align-items:center; justify-content:center;
+    color:var(--brown-600);
+    cursor:pointer; z-index:2;
+    transition: transform .18s cubic-bezier(.34,1.56,.64,1), color .2s ease;
+  }
+  .fav-btn svg{ width:15px; height:15px; }
+  .fav-btn:hover{ transform:scale(1.15); color:#D6483F; }
+  .fav-btn.active{ color:#D6483F; }
+  .fav-btn.active svg{ fill:#D6483F; }
+ 
+  .card-body{ padding:12px 13px 13px; }
+  .card-title{
+    font-size:15px; font-weight:800; color:var(--ink); margin:0 0 3px;
+    line-height:1.3;
+  }
+  .card-sub{
+    font-size:12.5px; color:var(--ink-soft); font-weight:600; margin:0 0 8px;
+  }
+  .card-meta{
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .rating{
+    display:flex; align-items:center; gap:4px;
+    font-size:12.5px; font-weight:800; color:var(--brown-700);
+  }
+  .rating svg{ width:13px; height:13px; color:var(--gold-500); }
+  .rating .count{ color:var(--ink-soft); font-weight:600; }
+  .price{ font-size:14px; font-weight:800; color:var(--brown-700); }
+  .price span{ font-size:11px; font-weight:600; color:var(--ink-soft); }
+ 
+  /* ============ BOTTOM NAV ============ */
+  .bottom-nav{
+    flex:0 0 auto;
+    display:flex;
+    background:var(--cream-card);
+    border-top:1px solid var(--line);
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom,0px));
+    position:relative;
+    z-index:5;
+  }
+  .nav-item{
+    flex:1;
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    padding:7px 2px 6px;
+    background:none; border:none; cursor:pointer;
+    color:var(--ink-soft);
+    position:relative;
+    transition: color .2s ease;
+  }
+  .nav-item .pill{
+    position:absolute; top:-2px; left:50%; transform:translateX(-50%) scaleX(0);
+    width:34px; height:30px; border-radius:12px;
+    background:var(--gold-tint);
+    transition: transform .28s cubic-bezier(.34,1.56,.64,1);
+    z-index:0;
+  }
+  .nav-item.active .pill{ transform:translateX(-50%) scaleX(1); }
+  .nav-item svg{ width:21px; height:21px; position:relative; z-index:1; transition: transform .28s cubic-bezier(.34,1.56,.64,1); }
+  .nav-item span{ font-size:10.5px; font-weight:700; position:relative; z-index:1; }
+  .nav-item.active{ color:var(--brown-700); }
+  .nav-item.active svg{ transform:translateY(-1px); color:var(--gold-600); }
+  .nav-item:hover:not(.active){ color:var(--brown-600); }
+  .nav-item:active svg{ transform:scale(0.86); }
+ 
+  /* ============ SIDEBAR ============ */
+  .overlay{
+    position:absolute; inset:0;
+    background:rgba(20,10,4,0.5);
+    opacity:0; pointer-events:none;
+    transition:opacity .3s ease;
+    z-index:20;
+    backdrop-filter: blur(1px);
+  }
+  .overlay.show{ opacity:1; pointer-events:auto; }
+ 
+  .sidebar{
+    position:absolute; top:0; left:0; bottom:0;
+    width:82%; max-width:320px;
+    background:linear-gradient(180deg, var(--brown-700), var(--brown-900));
+    transform:translateX(-105%);
+    transition: transform .34s cubic-bezier(.22,1,.36,1);
+    z-index:21;
+    display:flex; flex-direction:column;
+    box-shadow: 12px 0 40px rgba(0,0,0,0.35);
+  }
+  .sidebar.open{ transform:translateX(0); }
+ 
+  .sidebar-head{
+    padding: calc(22px + env(safe-area-inset-top,0px)) 20px 18px;
+    display:flex; align-items:center; gap:12px;
+    border-bottom:1px solid rgba(255,255,255,0.12);
+  }
+  .sidebar-head img{ height:46px; width:auto; }
+  .sidebar-head .sname{ font-family:'Fraunces',serif; font-weight:700; font-size:19px; color:#FBF3E6; }
+  .sidebar-head .stag{ font-size:11.5px; color:var(--gold-400); font-weight:700; margin-top:1px; }
+ 
+  .sidebar-close{
+    margin-left:auto;
+    width:32px; height:32px; border-radius:50%;
+    background:rgba(255,255,255,0.1); border:none;
+    display:flex;align-items:center;justify-content:center;
+    color:#F3E7D8; cursor:pointer;
+    transition: background-color .2s ease, transform .18s ease;
+  }
+  .sidebar-close:hover{ background:rgba(255,255,255,0.2); transform:rotate(90deg); }
+  .sidebar-close svg{ width:16px; height:16px; }
+ 
+  .sidebar-user{
+    margin:16px 20px 6px;
+    display:flex; align-items:center; gap:11px;
+    padding:12px 14px;
+    background:rgba(255,255,255,0.07);
+    border-radius:14px;
+  }
+  .sidebar-user .ua{
+    width:40px;height:40px;border-radius:50%;
+    background:var(--gold-500); color:var(--brown-900);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces',serif; font-weight:700;
+  }
+  .sidebar-user .un{ color:#FBF3E6; font-weight:700; font-size:13.5px; }
+  .sidebar-user .us{ color:rgba(255,255,255,0.55); font-size:11.5px; font-weight:600; }
+ 
+  .sidebar-nav{
+    flex:1; overflow-y:auto;
+    padding:8px 12px;
+    display:flex; flex-direction:column; gap:2px;
+  }
+  .sidebar-link{
+    display:flex; align-items:center; gap:13px;
+    padding:12px 12px;
+    border-radius:12px;
+    color:rgba(255,255,255,0.82);
+    text-decoration:none;
+    font-size:14px; font-weight:700;
+    cursor:pointer;
+    border:none; background:none; width:100%; text-align:left;
+    transition: background-color .2s ease, color .2s ease, padding-left .2s ease;
+  }
+  .sidebar-link svg{ width:19px; height:19px; flex:0 0 auto; color:var(--gold-400); }
+  .sidebar-link:hover{ background:rgba(255,255,255,0.09); padding-left:16px; color:#fff; }
+  .sidebar-link.current{ background:rgba(239,174,46,0.16); color:#fff; }
+  .sidebar-link.current svg{ color:var(--gold-500); }
+ 
+  .sidebar-divider{ height:1px; background:rgba(255,255,255,0.1); margin:10px 14px; }
+ 
+  .sidebar-foot{
+    padding:10px 12px calc(16px + env(safe-area-inset-bottom,0px));
+    border-top:1px solid rgba(255,255,255,0.1);
+  }
+ 
+  /* hamburger morph */
+  .burger{ position:relative; width:16px; height:11px; }
+  .burger span{
+    position:absolute; left:0; width:100%; height:2px; border-radius:2px;
+    background:currentColor;
+    transition: transform .3s cubic-bezier(.6,.2,.2,1), opacity .2s ease, top .3s ease;
+  }
+  .burger span:nth-child(1){ top:0; }
+  .burger span:nth-child(2){ top:4.5px; }
+  .burger span:nth-child(3){ top:9px; }
+  .icon-btn.open .burger span:nth-child(1){ top:4.5px; transform:rotate(45deg); }
+  .icon-btn.open .burger span:nth-child(2){ opacity:0; }
+  .icon-btn.open .burger span:nth-child(3){ top:4.5px; transform:rotate(-45deg); }
+ 
+  .empty-msg{
+    text-align:center; padding:30px 10px; color:var(--ink-soft); font-size:13px; font-weight:600;
+    display:none;
+  }
+ 
+
+  .prototype-note{font-size:11px;color:var(--ink-soft);margin:0 2px 12px;line-height:1.5}
+  button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--gold-600);outline-offset:2px}
+  .modal-backdrop{position:absolute;inset:0;background:rgba(22,12,5,.58);z-index:40;display:none;align-items:flex-end;justify-content:center}
+  .modal-backdrop.show{display:flex}
+  .detail-modal{width:100%;max-height:88%;overflow:auto;background:var(--cream-card);border-radius:22px 22px 0 0;padding:20px 18px 28px;color:var(--ink);box-shadow:0 -12px 40px rgba(0,0,0,.2)}
+  .modal-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .modal-top h2{font-size:23px;margin:0 0 8px}
+  .modal-close{border:0;border-radius:50%;width:34px;height:34px;background:var(--brown-tint);color:var(--brown-700);font-size:20px;cursor:pointer}
+  .detail-modal p,.detail-modal li{font-size:13px;line-height:1.55}
+  .detail-modal label{display:block;font-size:13px;font-weight:800;margin:12px 0 5px}
+  .detail-modal input,.detail-modal select,.detail-modal textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--cream-page);color:var(--ink);font:inherit}
+  .modal-action{border:0;border-radius:12px;background:var(--brown-600);color:#fff;font-weight:800;padding:12px 15px;width:100%;margin-top:14px;cursor:pointer}
+  .mini-panel{padding:12px;border-radius:12px;background:var(--brown-tint);margin:10px 0;font-size:12px;line-height:1.5}
+  .price-estimate{font-weight:800;color:var(--brown-700);font-size:17px;margin-top:10px}
+  .work-tags{display:flex;gap:6px;flex-wrap:wrap}.work-tags span{background:var(--gold-tint);color:var(--brown-700);padding:5px 8px;border-radius:999px;font-size:11px;font-weight:800}
+  .primary-inline{border:0;border-radius:10px;background:var(--brown-600);color:white;padding:9px 12px;font-weight:800;cursor:pointer}
+  @media(min-width:433px){.modal-backdrop{align-items:center;padding:18px}.detail-modal{max-width:400px;border-radius:22px;max-height:90%}}
+
+  /* ============ TUTOR DISCOVERY HOME ============ */
+  .tutor-home{display:none}
+  .tutor-home.show{display:block}
+  .tutor-hero{padding:16px;border:1px solid var(--line);border-radius:20px;background:linear-gradient(135deg,var(--brown-700),var(--brown-900));color:#fff;margin-bottom:18px;box-shadow:0 10px 24px rgba(var(--shadow-color),.16)}
+  .tutor-hero .eyebrow{font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;color:var(--gold-400);margin-bottom:5px}
+  .tutor-hero h2{margin:0 0 6px;color:#fff;font-size:22px}
+  .tutor-hero p{margin:0;color:rgba(255,255,255,.72);font-size:12px;line-height:1.5}
+  .tutor-section{margin:0 0 22px}
+  .tutor-section-head{display:flex;justify-content:space-between;align-items:end;margin:0 2px 10px}
+  .tutor-section-head h3{margin:0;font-size:17px;color:var(--ink)}
+  .tutor-section-head span{font-size:10.5px;color:var(--ink-soft);font-weight:700}
+  .tutor-feed{display:flex;flex-direction:column;gap:12px}
+  .tutor-card{border:1px solid var(--line);background:var(--cream-card);border-radius:18px;overflow:hidden;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease}
+  .tutor-card:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(var(--shadow-color),.15)}
+  .tutor-cover{height:112px;display:flex;align-items:center;justify-content:center;position:relative;font-size:42px;background:linear-gradient(135deg,#B7C9F4,#7188C8)}
+  .tutor-cover.science{background:linear-gradient(135deg,#A9DFC8,#5BA77F)}
+  .tutor-cover.english{background:linear-gradient(135deg,#F1C4D8,#C579A2)}
+  .tutor-cover.coding{background:linear-gradient(135deg,#B8D8EA,#6A9DBA)}
+  .tutor-cover.exam{background:linear-gradient(135deg,#F4D89A,#D69A43)}
+  .tutor-rank{position:absolute;top:9px;left:9px;background:rgba(255,255,255,.94);color:var(--brown-700);font-size:10px;font-weight:800;padding:5px 9px;border-radius:999px}
+  .tutor-save{position:absolute;top:8px;right:8px;width:30px;height:30px;border:0;border-radius:50%;background:rgba(255,255,255,.92);color:var(--brown-600);font-size:16px;cursor:pointer}
+  .tutor-info{padding:12px 13px 13px}
+  .tutor-name-row{display:flex;align-items:start;justify-content:space-between;gap:10px}
+  .tutor-name{font-size:15px;font-weight:800;color:var(--ink)}
+  .verified-dot{font-size:10px;color:var(--gold-600);font-weight:800;white-space:nowrap}
+  .tutor-subject{font-size:12px;color:var(--ink-soft);font-weight:600;margin:2px 0 8px}
+  .reason-pill{display:inline-block;background:var(--gold-tint);color:var(--brown-700);padding:5px 8px;border-radius:999px;font-size:10px;font-weight:800;margin-bottom:9px}
+  .tutor-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+  .tutor-stat{background:var(--brown-tint);border-radius:10px;padding:7px 5px;text-align:center}
+  .tutor-stat b{display:block;font-size:11.5px;color:var(--brown-700)}
+  .tutor-stat span{display:block;font-size:8.5px;color:var(--ink-soft);font-weight:700;margin-top:1px}
+  .tutor-bottom{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--ink-soft);font-weight:700}
+  .tutor-bottom strong{font-size:14px;color:var(--brown-700)}
+  .tutor-note{font-size:10px;color:var(--ink-soft);line-height:1.45;margin:-8px 2px 18px}
+
+  /* ============ TUTOR VIDEO-FIRST EXPERIENCE ============ */
+  .tutor-video-thumb{height:190px;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(135deg,#8bcdb1,#5da982);font-size:50px}
+  .tutor-video-thumb.science{background:linear-gradient(135deg,#A9DFC8,#5BA77F)}
+  .tutor-video-thumb.math{background:linear-gradient(135deg,#B7C9F4,#7188C8)}
+  .tutor-video-thumb.exam{background:linear-gradient(135deg,#F4D89A,#D69A43)}
+  .tutor-video-thumb.coding{background:linear-gradient(135deg,#B8D8EA,#6A9DBA)}
+  .video-play{width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.94);display:flex;align-items:center;justify-content:center;color:var(--brown-700);font-size:23px;padding-left:4px;box-shadow:0 7px 22px rgba(0,0,0,.18);z-index:2}
+  .video-duration{position:absolute;right:10px;bottom:9px;background:rgba(20,10,4,.82);color:#fff;padding:4px 7px;border-radius:6px;font-size:10px;font-weight:800;z-index:2}
+  .video-topic{font-size:16px;font-weight:800;color:var(--ink);margin:0 0 5px;line-height:1.35}
+  .video-meta{font-size:11.5px;color:var(--ink-soft);font-weight:700}
+  .video-teacher{display:flex;align-items:center;justify-content:space-between;margin-top:10px;font-size:12px;font-weight:800;color:var(--brown-700)}
+  .watch-page{display:flex;flex-direction:column;gap:14px}
+  .watch-player{aspect-ratio:16/9;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#8bcdb1,#5da982);display:flex;align-items:center;justify-content:center;position:relative;font-size:62px}
+  .watch-player .video-play{width:66px;height:66px;font-size:28px}
+  .watch-back{border:0;background:var(--brown-tint);color:var(--brown-700);border-radius:10px;padding:8px 11px;font-weight:800;cursor:pointer;align-self:flex-start}
+  .watch-title{font-size:20px;margin:0;color:var(--ink)}
+  .watch-stats{font-size:11.5px;color:var(--ink-soft);font-weight:700}
+  .teacher-strip{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .teacher-strip strong{display:block;color:var(--ink);font-size:14px}.teacher-strip span{font-size:10.5px;color:var(--ink-soft);font-weight:700}
+  .tuition-box{background:var(--cream-card);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .tuition-box h3{font-size:16px;margin:0 0 5px}.tuition-box p{font-size:11.5px;color:var(--ink-soft);margin:0 0 10px;line-height:1.45}
+  .tuition-price{font-size:19px;font-weight:800;color:var(--brown-700)}
+  .search-result-head{font-size:17px;margin:2px 2px 11px;color:var(--ink)}
+  .no-video-results{text-align:center;padding:32px 14px;color:var(--ink-soft);font-size:13px;font-weight:700}
+
+  /* ============ LOGIN / SIGN-UP GATE ============ */
+  .auth-gate{position:absolute;inset:0;z-index:100;background:var(--cream-page);display:flex;flex-direction:column;overflow-y:auto;padding:34px 24px 28px;transition:opacity .35s ease,transform .35s ease}
+  .auth-gate.hidden{opacity:0;pointer-events:none;transform:translateY(-12px)}
+  .auth-brand{text-align:center;margin:24px 0 30px}
+  .auth-brand img{height:66px;width:auto;margin-bottom:10px}
+  .auth-brand h1{margin:0;color:var(--brown-700);font-size:31px}
+  .auth-brand p{margin:7px 0 0;color:var(--ink-soft);font-size:13px;font-weight:700}
+  .auth-card{background:var(--cream-card);border:1px solid var(--line);border-radius:22px;padding:22px 18px;box-shadow:0 14px 35px rgba(var(--shadow-color),.12)}
+  .auth-card h2{margin:0 0 5px;font-size:23px;color:var(--ink)}
+  .auth-intro{margin:0 0 19px;color:var(--ink-soft);font-size:12.5px;line-height:1.5}
+  .auth-label{display:block;font-size:12px;font-weight:800;color:var(--ink);margin:13px 0 6px}
+  .auth-input{width:100%;border:1.5px solid var(--line);border-radius:13px;background:var(--cream-page);color:var(--ink);font:inherit;font-size:14px;padding:12px 13px;outline:none;transition:border-color .2s,box-shadow .2s}
+  .auth-input:focus{border-color:var(--gold-500);box-shadow:0 0 0 4px var(--gold-tint)}
+  .password-wrap{position:relative}.password-wrap .auth-input{padding-right:48px}
+  .password-toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--brown-600);font-size:11px;font-weight:800;cursor:pointer;padding:8px}
+  .auth-row{display:flex;justify-content:space-between;align-items:center;margin:10px 1px 16px;font-size:11px;color:var(--ink-soft);font-weight:700}
+  .auth-row a{color:var(--brown-600);text-decoration:none}
+  .auth-submit{width:100%;border:0;border-radius:13px;background:var(--brown-600);color:#fff;font:inherit;font-weight:800;padding:13px;cursor:pointer;box-shadow:0 8px 18px rgba(var(--shadow-color),.17);transition:transform .18s,background .2s}
+  .auth-submit:hover{background:var(--brown-700);transform:translateY(-1px)}
+  .auth-divider{display:flex;align-items:center;gap:10px;margin:17px 0;color:var(--ink-soft);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px}
+  .auth-divider:before,.auth-divider:after{content:'';height:1px;background:var(--line);flex:1}
+  .auth-social{width:100%;border:1.5px solid var(--line);border-radius:13px;background:var(--cream-card);color:var(--ink);font:inherit;font-size:13px;font-weight:800;padding:11px;cursor:pointer}
+  .auth-switch{text-align:center;margin:18px 0 0;font-size:12px;color:var(--ink-soft);font-weight:700}
+  .auth-switch button{border:0;background:none;color:var(--brown-600);font:inherit;font-weight:800;cursor:pointer;padding:0}
+  .auth-terms{text-align:center;color:var(--ink-soft);font-size:9.5px;line-height:1.45;margin:18px 10px 0}
+  .auth-error{min-height:17px;color:#B73B32;font-size:10.5px;font-weight:700;margin-top:7px}
+
+  /* ============ LEARNING VIDEO INTERACTIONS ============ */
+  .lesson-content{background:var(--cream-card);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .lesson-content h3,.review-box h3{margin:0 0 8px;font-size:16px}.lesson-content p,.lesson-content li{font-size:12px;line-height:1.55;color:var(--ink)}
+  .video-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.video-action{border:1px solid var(--line);background:var(--cream-card);color:var(--brown-700);border-radius:12px;padding:9px 5px;font:inherit;font-size:11px;font-weight:800;cursor:pointer}.video-action.active{background:var(--gold-tint);border-color:var(--gold-500)}
+  .review-box{background:var(--cream-card);border:1px solid var(--line);border-radius:16px;padding:14px}.review-form{display:flex;gap:7px;margin:10px 0}.review-form input{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;background:var(--cream-page);color:var(--ink);padding:10px;font:inherit;font-size:12px}.review-form button{border:0;border-radius:10px;background:var(--brown-600);color:#fff;padding:0 12px;font-weight:800;cursor:pointer}.review-item{padding:9px 0;border-top:1px solid var(--line);font-size:11.5px;line-height:1.45}.review-item b{color:var(--brown-700)}
+  .lesson-screen{position:absolute;inset:0;z-index:15;background:var(--cream-page);display:none;flex-direction:column}.lesson-screen.show{display:flex}.lesson-screen-head{flex:0 0 auto;padding:12px 14px;background:var(--cream-card);border-bottom:1px solid var(--line)}.lesson-screen-body{flex:1;overflow-y:auto;padding:14px}.lesson-screen .watch-back{margin:0}.lesson-screen .watch-page{padding-bottom:20px}
+
+  /* ============ TUTOR NOTES + RECOMMENDATIONS ============ */
+  .teacher-notes{position:relative;overflow:hidden;border:1px solid var(--gold-500);background:linear-gradient(135deg,var(--gold-tint),var(--cream-card));border-radius:18px;padding:15px;box-shadow:0 10px 24px rgba(var(--shadow-color),.10);cursor:pointer}
+  .teacher-notes:before{content:"";position:absolute;width:90px;height:90px;border-radius:50%;background:rgba(239,174,46,.12);right:-28px;top:-34px}
+  .notes-top{display:flex;align-items:center;justify-content:space-between;gap:10px;position:relative;z-index:1}.notes-icon{width:42px;height:42px;border-radius:13px;background:var(--cream-card);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 5px 14px rgba(var(--shadow-color),.10)}
+  .notes-title{flex:1}.notes-title h3{margin:0;font-size:16px;color:var(--brown-700)}.notes-title span{display:block;margin-top:2px;font-size:10.5px;color:var(--ink-soft);font-weight:700}
+  .notes-preview{position:relative;z-index:1;margin-top:11px;padding:10px 11px;border-radius:12px;background:rgba(255,255,255,.45);font-size:11.5px;line-height:1.5;color:var(--ink)}
+  .notes-actions{position:relative;z-index:1;display:flex;gap:8px;margin-top:10px}.notes-btn{flex:1;border:0;border-radius:11px;padding:10px 8px;font:inherit;font-size:11px;font-weight:800;cursor:pointer}.notes-open{background:var(--brown-600);color:#fff}.notes-download{background:var(--cream-card);color:var(--brown-700);border:1px solid var(--line)}
+  .notes-full{display:none;position:relative;z-index:1;margin-top:10px;padding-top:10px;border-top:1px dashed rgba(107,58,31,.25)}.notes-full.show{display:block}.notes-full p,.notes-full li{font-size:11.5px;line-height:1.55}.notes-full ul{padding-left:18px;margin:7px 0}
+  .more-lessons{margin-top:2px}.more-lessons h3{font-size:17px;margin:0 0 10px}.more-feed{display:flex;gap:10px;overflow-x:auto;padding:0 0 3px;scrollbar-width:none}.more-feed::-webkit-scrollbar{display:none}.more-card{flex:0 0 72%;border:1px solid var(--line);background:var(--cream-card);border-radius:15px;overflow:hidden;cursor:pointer}.more-thumb{height:92px;display:flex;align-items:center;justify-content:center;position:relative;font-size:34px}.more-thumb.math{background:linear-gradient(135deg,#B7C9F4,#7188C8)}.more-thumb.science{background:linear-gradient(135deg,#A9DFC8,#5BA77F)}.more-thumb.english{background:linear-gradient(135deg,#F1C4D8,#C579A2)}.more-thumb.exam{background:linear-gradient(135deg,#F4D89A,#D69A43)}.more-info{padding:9px 10px}.more-info b{display:block;font-size:12px;line-height:1.35;color:var(--ink)}.more-info span{font-size:9.5px;color:var(--ink-soft);font-weight:700}
+
+  /* ============ TUTOR LESSON + TUITION REFINEMENT ============ */
+  .lesson-notes-card{position:relative;overflow:hidden;border:1px solid var(--gold-500);background:linear-gradient(145deg,var(--cream-card),var(--gold-tint));border-radius:19px;padding:15px;box-shadow:0 10px 24px rgba(var(--shadow-color),.10)}
+  .lesson-notes-card:after{content:"";position:absolute;width:110px;height:110px;border-radius:50%;right:-52px;top:-55px;background:rgba(239,174,46,.13);pointer-events:none}
+  .lesson-notes-head{display:flex;align-items:center;gap:10px;position:relative;z-index:1}.lesson-notes-icon{width:42px;height:42px;flex:0 0 42px;border-radius:13px;background:var(--brown-700);color:#fff;display:flex;align-items:center;justify-content:center;font-size:21px;box-shadow:0 6px 15px rgba(var(--shadow-color),.16)}
+  .lesson-notes-title{min-width:0;flex:1}.lesson-notes-title h3{margin:0;color:var(--brown-700);font-size:17px}.lesson-notes-title p{margin:2px 0 0;color:var(--ink-soft);font-size:10.5px;font-weight:700}
+  .notes-quality{white-space:nowrap;background:var(--cream-card);border:1px solid rgba(216,150,32,.35);border-radius:999px;padding:6px 8px;font-size:10px;font-weight:800;color:var(--brown-700)}
+  .lesson-glance{position:relative;z-index:1;margin:11px 0 0;color:var(--ink);font-size:12px;line-height:1.48}.lesson-glance b{color:var(--brown-700)}
+  .lesson-keywords{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;position:relative;z-index:1}.lesson-keywords span{padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.62);color:var(--brown-700);font-size:9.5px;font-weight:800}
+  .notes-cta-row{display:grid;grid-template-columns:1.25fr .9fr;gap:8px;margin-top:11px;position:relative;z-index:1}.notes-cta-row button{border-radius:11px;padding:10px 8px;font:inherit;font-size:11px;font-weight:800;cursor:pointer}.notes-cta-primary{border:0;background:var(--brown-600);color:#fff}.notes-cta-download{border:1px solid var(--line);background:var(--cream-card);color:var(--brown-700)}
+  .notes-full{display:none;position:relative;z-index:1;margin-top:11px;padding-top:10px;border-top:1px dashed rgba(107,58,31,.28)}.notes-full.show{display:block}.notes-full p,.notes-full li{font-size:11.5px;line-height:1.5;color:var(--ink)}.notes-full ul{padding-left:18px;margin:7px 0}
+  .note-rating{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;padding-top:9px;border-top:1px solid rgba(107,58,31,.12);position:relative;z-index:1}.note-rating span{font-size:10px;font-weight:800;color:var(--ink-soft)}.note-stars{display:flex;gap:2px}.note-star{border:0;background:transparent;padding:2px;font-size:16px;line-height:1;color:#BCA98E;cursor:pointer}.note-star.active{color:var(--gold-600)}
+  .tuition-box.tuition-refined{padding:15px;border-color:rgba(216,150,32,.32);background:linear-gradient(145deg,var(--cream-card),var(--brown-tint));box-shadow:0 8px 20px rgba(var(--shadow-color),.08)}
+  .tuition-kicker{font-size:9.5px;font-weight:800;letter-spacing:.7px;text-transform:uppercase;color:var(--gold-600);margin-bottom:3px}.tuition-refined h3{font-size:17px;margin:0;color:var(--ink)}.tuition-refined .tuition-sub{font-size:10.5px;margin:3px 0 11px;color:var(--ink-soft);font-weight:700}.tuition-offer{display:flex;align-items:end;justify-content:space-between;gap:10px;padding:10px 11px;border-radius:13px;background:var(--cream-card);border:1px solid var(--line)}.tuition-offer .tuition-price{font-size:21px;line-height:1}.tuition-offer small{display:block;margin-top:4px;color:var(--ink-soft);font-size:9.5px;font-weight:700}.tuition-duration{display:flex;align-items:center;gap:6px}.tuition-duration label{font-size:10px;font-weight:800;color:var(--ink-soft)}.tuition-duration select{width:auto;min-width:88px;padding:7px 8px;border:1px solid var(--line);border-radius:9px;background:var(--cream-page);color:var(--ink);font:inherit;font-size:11px;font-weight:800}.tuition-refined .modal-action{margin-top:10px;padding:11px}.tuition-total{font-size:10px;font-weight:800;color:var(--brown-700);text-align:center;margin:7px 0 0}
+  .session-access{margin-top:10px;padding:10px 11px;border:1px dashed rgba(216,150,32,.45);border-radius:12px;background:rgba(239,174,46,.07)}
+  .session-access-top{display:flex;align-items:center;justify-content:space-between;gap:8px}.session-access-title{font-size:10.5px;font-weight:800;color:var(--ink)}.session-status{font-size:9px;font-weight:800;color:var(--gold-600);background:var(--gold-tint);padding:4px 7px;border-radius:999px;white-space:nowrap}
+  .session-link-slot{margin-top:8px;display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:10px;background:var(--cream-page);border:1px solid var(--line);color:var(--ink-soft);font-size:10px;font-weight:700}.session-link-slot b{color:var(--brown-700)}
+  .session-access-note{margin:7px 1px 0!important;font-size:9px!important;line-height:1.4!important;color:var(--ink-soft)!important}.session-access.ready .session-link-slot{border-color:var(--gold-500);background:var(--gold-tint);color:var(--brown-700)}
+
+
+  /* ============ HANDICRAFT-ONLY PINTEREST FEED ============ */
+  .listings.craft-pinterest{display:block;column-count:2;column-gap:10px}
+  .listings.craft-pinterest .card[data-cat="handicraft"]{display:inline-block!important;width:100%;margin:0 0 12px;break-inside:avoid;border:0;border-radius:0;background:transparent;box-shadow:none;overflow:visible;vertical-align:top}
+  .listings.craft-pinterest .card[data-cat="handicraft"]:hover{transform:none;box-shadow:none}
+  .listings.craft-pinterest .card[data-cat="handicraft"] .craft-gallery{position:relative;width:100%;overflow:hidden;border-radius:17px;background:var(--brown-tint);touch-action:pan-y;user-select:none}
+  .listings.craft-pinterest .card[data-cat="handicraft"] .craft-track{display:flex;width:100%;transition:transform .28s ease}
+  .listings.craft-pinterest .card[data-cat="handicraft"] .craft-slide{flex:0 0 100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#E9AFD0,#C868A0);font-size:46px}
+  .listings.craft-pinterest .card[data-cat="handicraft"]:nth-of-type(odd) .craft-slide{min-height:220px}
+  .listings.craft-pinterest .card[data-cat="handicraft"]:nth-of-type(even) .craft-slide{min-height:170px}
+  .listings.craft-pinterest .card[data-cat="handicraft"] .craft-slide:nth-child(2){background:linear-gradient(145deg,#F0C6A7,#C88961)}
+  .listings.craft-pinterest .card[data-cat="handicraft"] .craft-slide:nth-child(3){background:linear-gradient(145deg,#B9D8D1,#69A89A)}
+  .listings.craft-pinterest .card[data-cat="handicraft"] .craft-slide:nth-child(4){background:linear-gradient(145deg,#D9C7EF,#9C79C6)}
+  .craft-dots{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);display:flex;gap:5px;padding:6px 8px;border-radius:999px;background:rgba(25,17,12,.48);z-index:4}
+  .craft-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.45)}
+  .craft-dot.active{background:#fff;transform:scale(1.18)}
+  .listings.craft-pinterest .card[data-cat="handicraft"] .fav-btn{top:7px;right:7px}
+  .listings.craft-pinterest .card[data-cat="handicraft"] .badge{display:none}
+  .listings.craft-pinterest .card[data-cat="handicraft"] .card-body{padding:7px 3px 2px}
+  .listings.craft-pinterest .card[data-cat="handicraft"] .card-title{font-size:12.5px;margin:0 0 3px;line-height:1.3}
+  .listings.craft-pinterest .card[data-cat="handicraft"] .card-sub{font-size:10px;margin:0 0 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .listings.craft-pinterest .card[data-cat="handicraft"] .card-meta{align-items:flex-start;gap:4px}
+  .listings.craft-pinterest .card[data-cat="handicraft"] .rating{font-size:10px}
+  .listings.craft-pinterest .card[data-cat="handicraft"] .price{font-size:11px;text-align:right}
+  .listings.craft-pinterest .card[data-cat="handicraft"] .price span{display:none}
+
+  .craft-slide img{display:block;width:100%;height:100%;object-fit:cover}
+  /* ============ HANDICRAFT PRODUCT PAGE ============ */
+  .listings.craft-pinterest .card[data-cat="handicraft"] .card-sub{display:none}
+  .craft-product-screen{position:absolute;inset:0;z-index:30;background:var(--cream-page);display:none;flex-direction:column;color:var(--ink)}
+  .craft-product-screen.show{display:flex}
+  .craft-product-head{flex:0 0 auto;display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--cream-card);border-bottom:1px solid var(--line)}
+  .craft-back,.craft-head-action{width:38px;height:38px;border:0;border-radius:50%;background:var(--brown-tint);color:var(--brown-700);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:20px}
+  .craft-product-head strong{flex:1;font-family:'Fraunces',serif;font-size:17px;color:var(--brown-700)}
+  .craft-product-body{flex:1;overflow-y:auto;padding:14px 14px 92px}
+  .product-hero{position:relative;border-radius:20px;overflow:hidden;background:linear-gradient(135deg,#E9AFD0,#C868A0);height:310px;display:flex;align-items:center;justify-content:center;font-size:84px}
+  .product-hero-actions{position:absolute;right:10px;top:10px;display:flex;flex-direction:column;gap:8px}.product-hero-actions button{width:40px;height:40px;border:0;border-radius:13px;background:rgba(255,252,246,.94);color:var(--brown-700);font-size:19px;cursor:pointer;box-shadow:0 5px 14px rgba(0,0,0,.12)}
+  .product-gallery-dots{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;gap:5px;padding:6px 9px;border-radius:999px;background:rgba(30,17,9,.48)}.product-gallery-dots span{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.5)}.product-gallery-dots span.active{background:#fff}
+  .product-rating-bar{display:flex;align-items:center;justify-content:space-between;margin:11px 0 0}.rating-chip{display:inline-flex;align-items:center;gap:6px;background:var(--cream-card);border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-size:12px;font-weight:800}.rating-chip b{color:var(--gold-600)}
+  .product-title{font-size:21px;margin:13px 0 4px;color:var(--ink)}.product-seller{font-size:11.5px;color:var(--ink-soft);font-weight:700}.product-price{font-size:25px;font-weight:800;color:var(--brown-700);margin:10px 0 2px}
+  .product-section{margin-top:14px;padding:14px;background:var(--cream-card);border:1px solid var(--line);border-radius:17px}.product-section h3{margin:0 0 10px;font-size:16px;color:var(--ink)}
+  .variant-row{display:flex;gap:9px;overflow-x:auto;scrollbar-width:none}.variant-row::-webkit-scrollbar{display:none}.variant-card{flex:0 0 76px;height:76px;border:2px solid var(--line);border-radius:13px;background:var(--cream-page);display:flex;align-items:center;justify-content:center;font-size:30px;cursor:pointer}.variant-card.active{border-color:var(--gold-600);box-shadow:0 0 0 2px var(--gold-tint)}
+  .delivery-row{display:flex;gap:10px;padding:10px 0;border-top:1px solid var(--line);font-size:11.5px;line-height:1.45}.delivery-row:first-of-type{border-top:0;padding-top:0}.delivery-icon{width:34px;height:34px;flex:0 0 34px;border-radius:10px;background:var(--brown-tint);display:flex;align-items:center;justify-content:center}.delivery-row b{display:block;color:var(--ink)}.delivery-row span{color:var(--ink-soft)}
+  .detail-tabs{display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;margin-bottom:11px}.detail-tabs::-webkit-scrollbar{display:none}.detail-tab{border:1px solid var(--line);background:var(--cream-page);color:var(--brown-700);border-radius:999px;padding:8px 11px;font:inherit;font-size:10.5px;font-weight:800;white-space:nowrap;cursor:pointer}.detail-tab.active{background:var(--brown-700);color:#fff;border-color:var(--brown-700)}
+  .detail-pane{font-size:11.5px;line-height:1.55;color:var(--ink)}.spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.spec-cell{padding:8px 0;border-bottom:1px solid var(--line)}.spec-cell span{display:block;font-size:9.5px;color:var(--ink-soft);font-weight:700}.spec-cell b{font-size:11.5px;color:var(--ink)}
+  .craft-review-summary{display:flex;align-items:center;gap:12px}.craft-review-score{font-size:30px;font-weight:800;color:var(--brown-700)}.craft-review-stars{color:var(--gold-600);font-size:16px}.craft-review-item{padding:9px 0;border-top:1px solid var(--line);font-size:11px;line-height:1.45}.craft-review-item b{color:var(--brown-700)}
+  .craft-product-actions{position:absolute;left:0;right:0;bottom:0;display:grid;grid-template-columns:1fr 1.15fr;gap:9px;padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));background:var(--cream-card);border-top:1px solid var(--line)}.craft-product-actions button{border-radius:13px;padding:12px 8px;font:inherit;font-weight:800;cursor:pointer}.craft-cart{background:var(--cream-card);border:1.5px solid var(--brown-600);color:var(--brown-700)}.craft-buy{background:var(--brown-600);border:1.5px solid var(--brown-600);color:#fff}
+
+  /* ============ HANDICRAFT REVIEW SHOWCASE + PHOTO REVIEWS ============ */
+  .product-rating-bar{justify-content:flex-start}
+  .rating-chip.review-jump{cursor:pointer;gap:7px;border-color:rgba(216,150,32,.45);background:linear-gradient(135deg,var(--gold-tint),var(--cream-card));box-shadow:0 5px 14px rgba(var(--shadow-color),.08);transition:transform .18s ease,box-shadow .18s ease}
+  .rating-chip.review-jump:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(var(--shadow-color),.12)}
+  .rating-chip.review-jump .review-star{color:var(--gold-600);font-size:14px}
+  .rating-chip.review-jump .review-score{color:var(--brown-700);font-size:13px}
+  .rating-chip.review-jump .review-count{color:var(--ink-soft);font-size:10.5px;font-weight:800}
+  .craft-review-form{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:7px;margin:10px 0 0;align-items:stretch}
+  .craft-review-form input[type=text]{min-width:0;border:1px solid var(--line);border-radius:10px;background:var(--cream-page);color:var(--ink);padding:10px;font:inherit;font-size:12px}
+  .craft-review-form button,.craft-photo-label{border:0;border-radius:10px;background:var(--brown-600);color:#fff;padding:0 12px;font:inherit;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;white-space:nowrap}
+  .craft-photo-label{background:var(--brown-tint);color:var(--brown-700);border:1px solid var(--line);min-width:42px;padding:0 10px}
+  .craft-photo-input{display:none}
+  .craft-photo-preview{display:none;align-items:center;gap:9px;margin-top:8px;padding:8px;border:1px solid var(--line);border-radius:11px;background:var(--cream-page)}
+  .craft-photo-preview.show{display:flex}
+  .craft-photo-preview img{width:54px;height:54px;border-radius:9px;object-fit:cover;border:1px solid var(--line)}
+  .craft-photo-preview span{flex:1;min-width:0;font-size:10px;color:var(--ink-soft);font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .craft-photo-remove{width:28px;height:28px;border:0;border-radius:50%;background:var(--brown-tint);color:var(--brown-700);cursor:pointer;font-weight:800}
+  .craft-review-photo{display:block;margin-top:7px;max-width:150px;max-height:150px;border-radius:11px;object-fit:cover;border:1px solid var(--line)}
+
+</style>
+</head>
+<body>
+ 
+<div class="app-shell">
+  <!-- ============ LOGIN / SIGN-UP ENTRY SCREEN ============ -->
+  <section class="auth-gate" id="authGate" aria-label="Civio login">
+    <div class="auth-brand"><img src="logo.svg" alt="Civio"><h1>Civio</h1><p>Local help, made personal</p></div>
+    <div class="auth-card">
+      <h2 id="authTitle">Welcome back</h2><p class="auth-intro" id="authIntro">Sign in to discover trusted local services and tutors around you.</p>
+      <form id="authForm">
+        <div id="nameField" style="display:none"><label class="auth-label" for="authName">Full name</label><input class="auth-input" id="authName" autocomplete="name" placeholder="Enter your name"></div>
+        <label class="auth-label" for="authEmail">Email or phone</label><input class="auth-input" id="authEmail" autocomplete="username" placeholder="Enter email or phone" required>
+        <label class="auth-label" for="authPassword">Password</label><div class="password-wrap"><input class="auth-input" id="authPassword" type="password" autocomplete="current-password" placeholder="Enter your password" minlength="4" required><button type="button" class="password-toggle" id="passwordToggle">Show</button></div>
+        <div class="auth-error" id="authError"></div>
+        <div class="auth-row"><label><input type="checkbox" id="rememberMe"> Remember me</label><a href="#" id="forgotPassword">Forgot password?</a></div>
+        <button class="auth-submit" type="submit" id="authSubmit">Sign in</button>
+      </form>
+      <div class="auth-divider">or</div><button class="auth-social" type="button" id="guestContinue">Continue as guest</button>
+      <p class="auth-switch"><span id="authSwitchText">New to Civio?</span> <button type="button" id="authSwitch">Create account</button></p>
+    </div>
+    <p class="auth-terms">By continuing, you agree to Civio's Terms of Service and Privacy Policy. This prototype does not send credentials to a server.</p>
+  </section>
+
+ 
+  <div class="overlay" id="overlay"></div>
+ 
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar" aria-hidden="true">
+    <div class="sidebar-head">
+      <img src="logo.svg" alt="Civio">
+      <div>
+        <div class="sname">Civio</div>
+        <div class="stag">Local help, made personal</div>
+      </div>
+      <button class="sidebar-close" id="sidebarClose" aria-label="Close menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+      </button>
+    </div>
+ 
+    <div class="sidebar-user">
+      <div class="ua">G</div>
+      <div>
+        <div class="un">Hi, Guest</div>
+        <div class="us">Sign in to book &amp; save</div>
+      </div>
+    </div>
+ 
+    <nav class="sidebar-nav">
+      <a class="sidebar-link current" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7"/><path d="M5 10v9a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1v-9"/></svg>
+        Home
+      </a>
+      <a class="sidebar-link" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="5" width="16" height="16" rx="2"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="4" y1="11" x2="20" y2="11"/></svg>
+        My Bookings
+      </a>
+      <a class="sidebar-link" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 8.6c0 5.1-8.8 10.4-8.8 10.4S3.2 13.7 3.2 8.6a4.8 4.8 0 018.8-2.7 4.8 4.8 0 018.8 2.7z"/></svg>
+        Saved
+      </a>
+      <a class="sidebar-link" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/><path d="M18 4l1.4 1.4M20 8h2"/></svg>
+        Become a Provider
+      </a>
+      <a class="sidebar-link" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v6a2 2 0 01-2 2H6a2 2 0 01-2-2v-6"/><path d="M16 6l-4-4-4 4"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        Refer &amp; Earn
+      </a>
+ 
+      <div class="sidebar-divider"></div>
+ 
+      <a class="sidebar-link" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 17v-1.5c2-1 2.6-2 2.6-3.2 0-1.4-1.2-2.3-2.6-2.3S9.4 10 9.3 11.2"/><circle cx="12" cy="17.7" r=".3" fill="currentColor"/></svg>
+        Help &amp; Support
+      </a>
+      <a class="sidebar-link" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="8"/><line x1="12" y1="11" x2="12" y2="16"/></svg>
+        About Civio
+      </a>
+    </nav>
+ 
+    <div class="sidebar-foot">
+      <a class="sidebar-link" href="#">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1-1.6 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1h.1a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>
+        Settings
+      </a>
+    </div>
+  </aside>
+ 
+  <!-- ============ TOP BAR ============ -->
+  <header class="topbar">
+    <button class="icon-btn" id="menuBtn" aria-label="Open menu">
+      <div class="burger"><span></span><span></span><span></span></div>
+    </button>
+ 
+    <div class="brand-mark">
+      <img src="logo.svg" alt="Civio logo">
+      <span>Civio</span>
+    </div>
+ 
+    <button class="avatar-btn" aria-label="Account">
+     <img src="icon.jpg" alt="Account">
+    </button>
+  </header>
+ 
+  <!-- ============ SEARCH ============ -->
+  <div class="search-wrap">
+    <div class="search-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.6" y2="16.6"/></svg>
+      <input type="text" placeholder="Search for a tiffin, handicraft, tutor…">
+    </div>
+    <div class="chip-row" id="chipRow">
+      <div class="chip active" data-cat="all">All</div>
+      <div class="chip" data-cat="food">🍛 Food</div>
+      <div class="chip" data-cat="handicraft">🧶 Handicraft</div>
+      <div class="chip" data-cat="tutor">📚 Tutoring</div>
+    </div>
+  </div>
+ 
+  <!-- ============ CONTENT ============ -->
+  <main class="content" id="content">
+ 
+    <div class="section-head">
+      <h2>Popular near you</h2>
+      <a href="#" id="seeAllLink">See all</a>
+    </div>
+ 
+    <section class="tutor-home" id="tutorHome" aria-label="Tutor discovery home"></section>
+
+    <div class="listings" id="listings">
+ 
+      <div class="card" data-cat="food">
+        <div class="thumb food"><span class="badge">Food</span><button class="fav-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 8.6c0 5.1-8.8 10.4-8.8 10.4S3.2 13.7 3.2 8.6a4.8 4.8 0 018.8-2.7 4.8 4.8 0 018.8 2.7z"/></svg></button><span>🍛</span></div>
+        <div class="card-body">
+          <p class="card-title">Home-style Rajma Chawal Tiffin</p>
+          <p class="card-sub">Priya's Kitchen · 0.6 km away</p>
+          <div class="card-meta">
+            <div class="rating"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15 9 22 9.5 16.7 14 18.5 21 12 17 5.5 21 7.3 14 2 9.5 9 9"/></svg>4.8 <span class="count">(120)</span></div>
+            <div class="price">₹120 <span>/ meal</span></div>
+          </div>
+        </div>
+      </div>
+ 
+ 
+      <div class="card" data-cat="handicraft">
+        <div class="thumb handicraft"><span class="badge">Handicraft</span><button class="fav-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 8.6c0 5.1-8.8 10.4-8.8 10.4S3.2 13.7 3.2 8.6a4.8 4.8 0 018.8-2.7 4.8 4.8 0 018.8 2.7z"/></svg></button><span>🧶</span></div>
+        <div class="card-body">
+          <p class="card-title">Handmade Macrame Wall Hanging</p>
+          <p class="card-sub">CraftedByRiya · 2.0 km away</p>
+          <div class="card-meta">
+            <div class="rating"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15 9 22 9.5 16.7 14 18.5 21 12 17 5.5 21 7.3 14 2 9.5 9 9"/></svg>5.0 <span class="count">(46)</span></div>
+            <div class="price">₹650</div>
+          </div>
+        </div>
+      </div>
+ 
+ 
+      <div class="card" data-cat="food">
+        <div class="thumb food"><span class="badge">Food</span><button class="fav-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 8.6c0 5.1-8.8 10.4-8.8 10.4S3.2 13.7 3.2 8.6a4.8 4.8 0 018.8-2.7 4.8 4.8 0 018.8 2.7z"/></svg></button><span>🍲</span></div>
+        <div class="card-body">
+          <p class="card-title">Weekly Dal-Sabzi Meal Plan</p>
+          <p class="card-sub">Anita Homefoods · 0.9 km away</p>
+          <div class="card-meta">
+            <div class="rating"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15 9 22 9.5 16.7 14 18.5 21 12 17 5.5 21 7.3 14 2 9.5 9 9"/></svg>4.6 <span class="count">(74)</span></div>
+            <div class="price">₹899 <span>/ week</span></div>
+          </div>
+        </div>
+      </div>
+ 
+      <div class="card" data-cat="handicraft">
+        <div class="thumb handicraft"><span class="badge">Handicraft</span><button class="fav-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 8.6c0 5.1-8.8 10.4-8.8 10.4S3.2 13.7 3.2 8.6a4.8 4.8 0 018.8-2.7 4.8 4.8 0 018.8 2.7z"/></svg></button><span>🎁</span></div>
+        <div class="card-body">
+          <p class="card-title">Personalised Knitted Sweater</p>
+          <p class="card-sub">WoolWorks · 1.7 km away</p>
+          <div class="card-meta">
+            <div class="rating"><svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15 9 22 9.5 16.7 14 18.5 21 12 17 5.5 21 7.3 14 2 9.5 9 9"/></svg>4.8 <span class="count">(63)</span></div>
+            <div class="price">₹1,200 <span>onwards</span></div>
+          </div>
+        </div>
+      </div>
+ 
+ 
+ 
+      <div class="card" data-cat="handicraft" data-distance="18" data-name="Hand-painted Blue Pottery Set" data-price="950">
+        <div class="thumb handicraft"><span class="badge">Ships from another city</span><button class="fav-btn" aria-label="Save item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 8.6c0 5.1-8.8 10.4-8.8 10.4S3.2 13.7 3.2 8.6a4.8 4.8 0 018.8-2.7 4.8 4.8 0 018.8 2.7z"/></svg></button><span>🏺</span></div>
+        <div class="card-body"><p class="card-title">Hand-painted Blue Pottery Set</p><p class="card-sub">Jaipur Blue Artisans · 18 km+ / intercity shipping</p><div class="card-meta"><div class="rating">★ 4.9 <span class="count">(31)</span></div><div class="price">₹950 <span>incl. estimated shipping</span></div></div></div>
+      </div>
+      <div class="card" data-cat="tutor" data-name="Mathematics with Aditi" data-price="45">
+        <div class="thumb" style="background:linear-gradient(135deg,#B7C9F4,#7188C8)"><span class="badge">Tutoring</span><button class="fav-btn" aria-label="Save tutor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 8.6c0 5.1-8.8 10.4-8.8 10.4S3.2 13.7 3.2 8.6a4.8 4.8 0 018.8-2.7 4.8 4.8 0 018.8 2.7z"/></svg></button><span>📚</span></div>
+        <div class="card-body"><p class="card-title">Mathematics with Aditi</p><p class="card-sub">Verified tutor · Algebra &amp; calculus</p><div class="card-meta"><div class="rating">★ 4.9 <span class="count">(84)</span></div><div class="price">₹45 <span>/ hour</span></div></div></div>
+      </div>
+    </div>
+    <p class="empty-msg" id="emptyMsg">No listings in this category yet — check back soon!</p>
+  </main>
+ 
+  <div class="modal-backdrop" id="detailBackdrop" role="dialog" aria-modal="true" aria-label="Listing details">
+    <section class="detail-modal">
+      <div class="modal-top"><h2 id="detailTitle">Listing details</h2><button class="modal-close" id="detailClose" aria-label="Close">×</button></div>
+      <div id="detailBody"></div>
+    </section>
+  </div>
+
+  <section class="lesson-screen" id="lessonScreen" aria-label="Lesson player"><div class="lesson-screen-head"><button class="watch-back" id="lessonBack">← Back to lessons</button></div><div class="lesson-screen-body" id="lessonBody"></div></section>
+
+
+  <section class="craft-product-screen" id="craftProductScreen" aria-label="Handicraft product details">
+    <header class="craft-product-head"><button class="craft-back" id="craftProductBack" aria-label="Back">←</button><strong>Product details</strong><button class="craft-head-action" id="craftProductShare" aria-label="Share">↗</button></header>
+    <div class="craft-product-body" id="craftProductBody"></div>
+    <div class="craft-product-actions"><button class="craft-cart" id="craftAddCart">Add to cart</button><button class="craft-buy" id="craftBuyNow">Buy now</button></div>
+  </section>
+
+  <!-- ============ BOTTOM NAV ============ -->
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="nav-item active" data-cat="all">
+      <span class="pill"></span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7"/><path d="M5 10v9a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1v-9"/></svg>
+      <span>Home</span>
+    </button>
+    <button class="nav-item" data-cat="food">
+      <span class="pill"></span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3v7a3 3 0 003 3v8"/><path d="M9 3v7"/><path d="M6 3v7"/><path d="M18 3c-1.7 0-3 2-3 5s1.3 5 3 5v8"/></svg>
+      <span>Food</span>
+    </button>
+    <button class="nav-item" data-cat="handicraft">
+      <span class="pill"></span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12c-2-3-6-3.5-8-1.5-2 2-1 5 2 6.5 2.4 1.2 6-1 6-5z"/><path d="M12 12c2-3 6-3.5 8-1.5 2 2 1 5-2 6.5-2.4 1.2-6-1-6-5z"/><circle cx="12" cy="12" r="1.6"/></svg>
+      <span>Handicraft</span>
+    </button>
+    <button class="nav-item" data-cat="tutor">
+      <span class="pill"></span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 8l9-5 9 5-9 5-9-5z"/><path d="M7 10v5c3 3 7 3 10 0v-5"/><path d="M21 8v7"/></svg>
+      <span>Tutors</span>
+    </button>
+  </nav>
+ 
+</div>
+ 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script type="module">
+  // Login/sign-up gate (front-end prototype only; no real authentication server).
+  const authGate=document.getElementById('authGate'),authForm=document.getElementById('authForm'),authTitle=document.getElementById('authTitle'),authIntro=document.getElementById('authIntro'),authName=document.getElementById('authName'),nameField=document.getElementById('nameField'),authEmail=document.getElementById('authEmail'),authPassword=document.getElementById('authPassword'),authSubmit=document.getElementById('authSubmit'),authSwitch=document.getElementById('authSwitch'),authSwitchText=document.getElementById('authSwitchText'),authError=document.getElementById('authError');
+  let authMode='login';
+  function enterCivio(name){
+    const displayName=(name||'Guest').trim()||'Guest';
+    document.querySelector('.sidebar-user .un').textContent='Hi, '+displayName.split(' ')[0];
+    document.querySelector('.sidebar-user .us').textContent=displayName==='Guest'?'Browsing as guest':'Signed in to Civio';
+    document.querySelector('.sidebar-user .ua').textContent=displayName==='Guest'?'G':displayName.charAt(0).toUpperCase();
+    authGate.classList.add('hidden');setTimeout(()=>authGate.style.display='none',360);
+  }
+  authSwitch.addEventListener('click',()=>{authMode=authMode==='login'?'signup':'login';const signup=authMode==='signup';nameField.style.display=signup?'block':'none';authTitle.textContent=signup?'Create your account':'Welcome back';authIntro.textContent=signup?'Join Civio to save favourites, book services and personalise recommendations.':'Sign in to discover trusted local services and tutors around you.';authSubmit.textContent=signup?'Create account':'Sign in';authSwitchText.textContent=signup?'Already have an account?':'New to Civio?';authSwitch.textContent=signup?'Sign in':'Create account';authPassword.autocomplete=signup?'new-password':'current-password';authError.textContent='';});
+  document.getElementById('passwordToggle').addEventListener('click',e=>{const showing=authPassword.type==='text';authPassword.type=showing?'password':'text';e.currentTarget.textContent=showing?'Show':'Hide';});
+  // Accounts are authenticated by Supabase, never by browser-only passwords.
+  const backendReady = !!(window.CIVIO_CONFIG?.supabaseUrl && window.CIVIO_CONFIG?.supabaseAnonKey && window.supabase);
+  const civioDb = backendReady ? window.supabase.createClient(window.CIVIO_CONFIG.supabaseUrl,window.CIVIO_CONFIG.supabaseAnonKey) : null;
+  let civioUser=null, favouriteIds=new Set();
+  const esc=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const listingId=card=>card?.dataset?.id||card?.querySelector('.card-title')?.textContent?.trim()||'';
+  const syncHearts=()=>document.querySelectorAll('.card .fav-btn').forEach(btn=>btn.classList.toggle('active',favouriteIds.has(listingId(btn.closest('.card')))));
+  async function loadFavourites(){
+    favouriteIds.clear();
+    if(civioDb&&civioUser){const {data,error}=await civioDb.from('favourites').select('service_id').eq('user_id',civioUser.id);if(error)console.warn('Favourites:',error.message);else (data||[]).forEach(x=>favouriteIds.add(x.service_id));}
+    syncHearts();
+  }
+  async function saveFavourite(id){
+    if(!civioUser){showMessage('Sign in required','Please sign in to save your favourite services.');return;}
+    const was=favouriteIds.has(id);
+    const result=was?await civioDb.from('favourites').delete().eq('user_id',civioUser.id).eq('service_id',id):await civioDb.from('favourites').insert({user_id:civioUser.id,service_id:id});
+    if(result.error){showMessage('Could not save',esc(result.error.message));return;}
+    was?favouriteIds.delete(id):favouriteIds.add(id);syncHearts();
+  }
+  async function setSessionUser(user){
+    civioUser=user||null;
+    if(user){enterCivio(user.user_metadata?.full_name||user.email?.split('@')[0]||'Member');}
+    await loadFavourites();
+  }
+  authEmail.type='email';authEmail.placeholder='Enter your email address';authEmail.autocomplete='email';
+  authPassword.minLength=8;
+  document.querySelector('.auth-terms').textContent='Your account is secured by Supabase. Confirm your email using the verification link before signing in.';
+  authForm.addEventListener('submit',async e=>{
+    e.preventDefault();authError.textContent='';
+    if(!backendReady){authError.textContent='Set up config.js and Supabase first. See README.md.';return;}
+    const email=authEmail.value.trim().toLowerCase(),password=authPassword.value;
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){authError.textContent='Enter a valid email address.';return;}
+    if(password.length<8){authError.textContent='Password must be at least 8 characters.';return;}
+    if(authMode==='signup'&&!authName.value.trim()){authError.textContent='Please enter your name.';return;}
+    authSubmit.disabled=true;authSubmit.textContent='Please wait…';
+    try{
+      if(authMode==='signup'){
+        const {data,error}=await civioDb.auth.signUp({email,password,options:{data:{full_name:authName.value.trim()},emailRedirectTo:location.origin+location.pathname}});
+        if(error)throw error;
+        authError.style.color='var(--brown-700)';authError.textContent='Check your inbox for the confirmation link, then sign in.';
+      }else{
+        const {data,error}=await civioDb.auth.signInWithPassword({email,password});
+        if(error)throw error;
+        if(!data.user?.email_confirmed_at){await civioDb.auth.signOut();throw new Error('Confirm your email before signing in.');}
+        await setSessionUser(data.user);
+      }
+    }catch(err){authError.style.color='#B73B32';authError.textContent=err.message||'Something went wrong.';}
+    finally{authSubmit.disabled=false;authSubmit.textContent=authMode==='signup'?'Create account':'Sign in';}
+  });
+  document.getElementById('guestContinue').addEventListener('click',()=>enterCivio('Guest'));
+  document.getElementById('forgotPassword').addEventListener('click',async e=>{
+    e.preventDefault();if(!backendReady){authError.textContent='Configure Supabase first.';return;}
+    const email=authEmail.value.trim();if(!email){authError.textContent='Enter your email first.';return;}
+    const {error}=await civioDb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+    authError.textContent=error?error.message:'If this account exists, a recovery email has been sent.';
+  });
+  if(civioDb){
+    civioDb.auth.getUser().then(({data})=>{if(data?.user?.email_confirmed_at)setSessionUser(data.user);});
+    civioDb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'){civioUser=null;favouriteIds.clear();syncHearts();} if(event==='PASSWORD_RECOVERY')setTimeout(()=>{const password=prompt('Enter your new password (at least 8 characters)');if(password?.length>=8)civioDb.auth.updateUser({password}).then(({error})=>alert(error?error.message:'Password updated.'));},100);});
+  }
+  const menuBtn = document.getElementById('menuBtn');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const sidebarClose = document.getElementById('sidebarClose');
+  // Services are loaded from an editable JSON text file in the GitHub repository.
+  // Existing sample cards are retained; new cards are appended before normal event binding.
+  function makeServiceCard(item){
+    const card=document.createElement('div');card.className='card';card.dataset.cat=item.category;card.dataset.id=item.id;
+    card.dataset.price=String(item.price||0);card.dataset.distance=String(item.distance_km||2);
+    const thumb=document.createElement('div');thumb.className='thumb '+(item.category==='tutor'?'':item.category);
+    const badge=document.createElement('span');badge.className='badge';badge.textContent=item.category==='tutor'?'Tutoring':item.category;
+    const fav=document.createElement('button');fav.className='fav-btn';fav.type='button';fav.setAttribute('aria-label','Save service');fav.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 8.6c0 5.1-8.8 10.4-8.8 10.4S3.2 13.7 3.2 8.6a4.8 4.8 0 018.8-2.7 4.8 4.8 0 018.8 2.7z"/></svg>';
+    thumb.append(badge,fav);
+    const pic=document.createElement('span');
+    if(item.images?.length){const img=document.createElement('img');img.src='assets/services/'+encodeURIComponent(item.images[0]);img.alt=item.title;img.loading='lazy';img.style.cssText='width:100%;height:100%;object-fit:cover;position:absolute;inset:0';thumb.append(img);}
+    else{pic.textContent=item.emoji||'🎨';thumb.append(pic);}
+    const body=document.createElement('div');body.className='card-body';
+    const title=document.createElement('p');title.className='card-title';title.textContent=item.title;
+    const sub=document.createElement('p');sub.className='card-sub';sub.textContent=item.seller+' · '+(item.distance_km||2)+' km away';
+    const meta=document.createElement('div');meta.className='card-meta';
+    const rating=document.createElement('div');rating.className='rating';rating.textContent='★ '+(item.rating||'New')+' ('+(item.review_count||0)+')';
+    const price=document.createElement('div');price.className='price';price.textContent='₹'+Number(item.price).toLocaleString('en-IN');
+    meta.append(rating,price);body.append(title,sub,meta);card.append(thumb,body);return card;
+  }
+  let serviceCatalog=[];
+  async function loadServices(){
+    try{
+      const response=await fetch('services.json',{cache:'no-store'});if(!response.ok)throw Error('Could not load services.json');
+      const items=await response.json();serviceCatalog=items;const allowed=['food','handicraft','tutor'];const ids=new Set();
+      for(const item of items){
+        if(!item.id||ids.has(item.id)||!allowed.includes(item.category)||!item.title||!item.seller||!Number.isFinite(Number(item.price)))continue;
+        ids.add(item.id);const card=makeServiceCard(item);document.getElementById('listings').append(card);
+      }
+    }catch(err){console.warn('Civio listings:',err.message);}
+  }
+  await loadServices();
+  const cards = [...document.querySelectorAll('.card')];
+  const emptyMsg = document.getElementById('emptyMsg');
+  const content = document.getElementById('content');
+  const searchInput = document.querySelector('.search-box input');
+  const backdrop = document.getElementById('detailBackdrop');
+  const detailTitle = document.getElementById('detailTitle');
+  const detailBody = document.getElementById('detailBody');
+  const sectionHead = document.querySelector('.section-head');
+  const tutorHome = document.getElementById('tutorHome');
+  let activeCategory = 'all';
+
+  function openSidebar(){ sidebar.classList.add('open'); overlay.classList.add('show'); menuBtn.classList.add('open'); sidebar.setAttribute('aria-hidden','false'); }
+  function closeSidebar(){ sidebar.classList.remove('open'); overlay.classList.remove('show'); menuBtn.classList.remove('open'); sidebar.setAttribute('aria-hidden','true'); }
+  menuBtn.addEventListener('click', () => sidebar.classList.contains('open') ? closeSidebar() : openSidebar());
+  overlay.addEventListener('click', closeSidebar);
+  sidebarClose.addEventListener('click', closeSidebar);
+
+  document.querySelectorAll('.sidebar-link').forEach(link=>{
+    link.addEventListener('click', e=>{
+      e.preventDefault();
+      document.querySelectorAll('.sidebar-link').forEach(l=>l.classList.remove('current'));
+      link.classList.add('current'); closeSidebar();
+      if(link.textContent.toLowerCase().includes('saved')){const matches=cards.filter(c=>favouriteIds.has(listingId(c)));showMessage('Saved services',matches.length?matches.map(c=>esc(c.querySelector('.card-title')?.textContent)).join(' · '):'No saved services yet. Tap the heart on any listing.');}
+      else if(link.textContent.toLowerCase().includes('provider')) showProviderForm();
+      else if(link.textContent.toLowerCase().includes('booking')) showMessage('My Bookings','Your orders and bookings will appear here after sign-in. This prototype stores no real orders.');
+    });
+  });
+
+  document.getElementById('listings').addEventListener('click',e=>{const btn=e.target.closest('.fav-btn');if(!btn)return;e.stopPropagation();saveFavourite(listingId(btn.closest('.card')));});
+
+  const tutorVideos = [
+    {id:'algebra-1',title:'Algebra Basics: Variables & Expressions',topic:'Maths',teacher:'Aditi Sharma',emoji:'➗',theme:'math',duration:'8:24',views:'128K',age:'2 days ago',rating:4.9,reviews:184,keywords:['maths','math','mathematics','algebra','variables','expressions'],lesson:'Algebra uses letters such as x and y to represent numbers we do not yet know. An expression like 2x + 3 means twice x, then add 3.',points:['Variable: a symbol for an unknown value, such as x.','Coefficient: the number multiplying a variable; in 5x, 5 is the coefficient.','Like terms can be combined: 3x + 2x = 5x.'],example:'If x = 4, then 2x + 3 = 2(4) + 3 = 11.'},
+    {id:'algebra-2',title:'Solve Simple Algebra Equations',topic:'Maths',teacher:'Aditi Sharma',emoji:'📐',theme:'math',duration:'10:12',views:'96K',age:'1 week ago',rating:4.9,reviews:184,keywords:['maths','algebra','equation','solve'],lesson:'To solve an equation, keep both sides balanced. Whatever operation you perform on one side must also be performed on the other.',points:['Start with x + 5 = 12.','Subtract 5 from both sides.','x = 7. Check: 7 + 5 = 12.'],example:'For 3x = 18, divide both sides by 3, so x = 6.'},
+    {id:'light-1',title:'Light: Reflection Made Simple',topic:'Physics',teacher:'Rohan Mehta',emoji:'💡',theme:'science',duration:'9:48',views:'143K',age:'4 days ago',rating:4.9,reviews:241,keywords:['physics','light','reflection','mirror'],lesson:'Reflection happens when light strikes a surface and bounces back. A mirror gives regular reflection because its surface is smooth.',points:['Incident ray: light travelling toward the surface.','Reflected ray: light travelling away after reflection.','Angle of incidence equals angle of reflection.'],example:'If a ray hits a mirror at 30° to the normal, it reflects at 30°.'},
+    {id:'light-2',title:'Refraction of Light in 7 Minutes',topic:'Physics',teacher:'Rohan Mehta',emoji:'🌈',theme:'science',duration:'7:06',views:'88K',age:'6 days ago',rating:4.9,reviews:241,keywords:['physics','light','refraction','lens'],lesson:'Refraction is the bending of light when it passes from one transparent medium to another because its speed changes.',points:['Air to glass: light usually bends toward the normal.','Glass to air: light usually bends away from the normal.','Lenses use refraction to form images.'],example:'A pencil partly inside water appears bent because light refracts at the water-air boundary.'},
+    {id:'articles-1',title:'English Articles: A, An & The',topic:'English',teacher:'Neha Kapoor',emoji:'📖',theme:'english',duration:'8:35',views:'119K',age:'3 days ago',rating:4.8,reviews:156,keywords:['english','articles','a','an','the','grammar'],lesson:'Articles come before nouns. Use a/an for something non-specific and the when the listener or reader can identify the particular thing.',points:['Use “a” before a consonant sound: a book.','Use “an” before a vowel sound: an apple, an hour.','Use “the” for something specific: the book on the table.'],example:'I saw a dog. The dog was playing with an orange ball.'},
+    {id:'english-basics-1',title:'Basics of English: Everyday Sentences',topic:'Language',teacher:'Neha Kapoor',emoji:'🗣️',theme:'english',duration:'11:20',views:'172K',age:'1 day ago',rating:4.8,reviews:156,keywords:['language','english','basics of english','basic english','speaking','sentences'],lesson:'Start spoken English with short subject-verb-object sentences and useful everyday questions.',points:['Introduce yourself: “My name is Riya.”','Ask politely: “Could you help me?”','Daily sentence: “I am going to school.”'],example:'Question: “Where are you going?” Answer: “I am going to the market.”'},
+    {id:'english-basics-2',title:'Basic English Greetings & Introductions',topic:'Language',teacher:'Neha Kapoor',emoji:'👋',theme:'english',duration:'6:42',views:'104K',age:'5 days ago',rating:4.8,reviews:156,keywords:['language','basics of english','greetings','introduction','spoken english'],lesson:'Greetings help begin conversations naturally. Match the greeting to the time and situation.',points:['Hello / Hi — common greetings.','Good morning / afternoon / evening — time-based greetings.','Nice to meet you — useful after an introduction.'],example:'“Hi, I’m Aman. Nice to meet you.” — “Nice to meet you too.”'},
+    {id:'dance-1',title:'Dance Basics: Your First 4 Steps',topic:'Dance',teacher:'Maya Verma',emoji:'💃',theme:'exam',duration:'7:55',views:'91K',age:'2 days ago',rating:4.9,reviews:98,keywords:['dance','basic steps','basics','steps','beginner'],lesson:'Learn a simple four-count sequence. Keep your knees relaxed and move with the beat instead of rushing the steps.',points:['Count 1: step right.','Count 2: bring left foot in.','Count 3: step left.','Count 4: bring right foot in.'],example:'Repeat 1-2-3-4 slowly, then add a gentle arm swing once your feet feel comfortable.'},
+    {id:'dance-2',title:'Basic Dance Rhythm & Body Movement',topic:'Dance',teacher:'Maya Verma',emoji:'🎵',theme:'exam',duration:'9:16',views:'76K',age:'1 week ago',rating:4.9,reviews:98,keywords:['dance','basic steps','rhythm','body movement','beginner'],lesson:'Rhythm means matching movement to a repeating beat. Begin by shifting your body weight from one foot to the other.',points:['Listen for the strongest beat.','Shift right-left-right-left.','Keep shoulders relaxed.'],example:'Clap four steady beats first, then repeat the same count with side steps.'}
+  ];
+  let tutorTopic='for-you';
+  let activeTutorVideo=null;
+  const tutorTopics=[['for-you','For You'],['maths','Maths'],['physics','Physics'],['english','English'],['language','Language'],['dance','Dance']];
+  const savedLessons=new Set(),downloadedLessons=new Set(),trophies=new Set();
+  const lessonReviews={
+    'algebra-1':[{name:'Ananya',text:'The variable example made algebra much easier.'}],
+    'light-1':[{name:'Kabir',text:'The reflection rule was explained very clearly.'}],
+    'articles-1':[{name:'Riya',text:'Short and useful explanation of a, an and the.'}]
+  };
+
+  function videoCard(v,label=''){
+    return `<article class="tutor-card tutor-video-card" data-video-id="${v.id}"><div class="tutor-video-thumb ${v.theme}">${label?`<span class="tutor-rank">${label}</span>`:''}<span>${v.emoji}</span><span class="video-play">▶</span><span class="video-duration">${v.duration}</span></div><div class="tutor-info"><p class="video-topic">${v.title}</p><div class="video-meta">${v.views} views · ${v.age}</div><div class="video-teacher"><span>${v.teacher} · ✓ Verified</span><span>★ ${v.rating}</span></div></div></article>`;
+  }
+  function bindTutorVideoCards(){tutorHome.querySelectorAll('[data-video-id]').forEach(card=>card.addEventListener('click',()=>openTutorVideo(card.dataset.videoId)));}
+  function topicVideos(){if(tutorTopic==='for-you')return tutorVideos;return tutorVideos.filter(v=>v.topic.toLowerCase()===tutorTopic);}
+  function renderTutorHome(){activeTutorVideo=null;const vids=topicVideos();tutorHome.innerHTML=`<div class="tutor-section"><div class="tutor-section-head"><h3>${tutorTopic==='for-you'?'Recommended for you':tutorTopics.find(x=>x[0]===tutorTopic)?.[1]||'Lessons'}</h3></div><div class="tutor-feed">${vids.map(v=>videoCard(v)).join('')}</div></div>`;bindTutorVideoCards();}
+  function renderTutorTopics(){chipRow.innerHTML=tutorTopics.map(([key,label])=>`<div class="chip${key===tutorTopic?' active':''}" data-tutor-topic="${key}">${label}</div>`).join('');chipRow.querySelectorAll('[data-tutor-topic]').forEach(chip=>chip.addEventListener('click',()=>{tutorTopic=chip.dataset.tutorTopic;searchInput.value='';renderTutorTopics();renderTutorHome();content.scrollTo({top:0,behavior:'smooth'});}));}
+  function reviewHtml(id){return (lessonReviews[id]||[]).map(r=>`<div class="review-item"><b>${r.name}</b><br>${r.text}</div>`).join('')||'<div class="review-item">No reviews yet. Share the first learning experience.</div>';}
+  function notesText(v){return `${v.title} — Teacher Notes\nTeacher: ${v.teacher}\nSubject: ${v.topic}\n\n${v.lesson}\n\nKEY POINTS\n${v.points.map((x,i)=>(i+1)+'. '+x).join('\n')}\n\nEXAMPLE\n${v.example}`;}
+  function downloadTextFile(filename,text){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);}
+  function recommendationHtml(v){const others=tutorVideos.filter(x=>x.id!==v.id).sort((a,b)=>{const as=a.topic===v.topic?1:0,bs=b.topic===v.topic?1:0;return bs-as;}).slice(0,4);return `<div class="more-lessons"><h3>More lessons for you</h3><div class="more-feed">${others.map(x=>`<article class="more-card" data-more-video="${x.id}"><div class="more-thumb ${x.theme}"><span>${x.emoji}</span><span class="video-duration">${x.duration}</span></div><div class="more-info"><b>${x.title}</b><span>${x.teacher} · ${x.topic}</span></div></article>`).join('')}</div></div>`;}
+  function openTutorVideo(id){
+    const v=tutorVideos.find(x=>x.id===id);if(!v)return;activeTutorVideo=v;
+    const lessonScreen=document.getElementById('lessonScreen'),lessonBody=document.getElementById('lessonBody');
+    lessonBody.innerHTML=`<div class="watch-page"><div class="watch-player ${v.theme}"><span>${v.emoji}</span><span class="video-play">▶</span><span class="video-duration">${v.duration}</span></div><h2 class="watch-title">${v.title}</h2><div class="watch-stats">${v.views} views · ${v.age}</div><div class="teacher-strip"><div><strong>${v.teacher} ✓</strong><span>${v.topic} · ★ ${v.rating} (${v.reviews})</span></div></div><div class="video-actions"><button class="video-action ${trophies.has(v.id)?'active':''}" id="trophyBtn">🏆 Trophy</button><button class="video-action ${downloadedLessons.has(v.id)?'active':''}" id="downloadBtn">⬇ Download</button><button class="video-action ${savedLessons.has(v.id)?'active':''}" id="saveLessonBtn">🔖 Save</button></div><div class="lesson-notes-card"><div class="lesson-notes-head"><div class="lesson-notes-title"><h3>Lesson Notes</h3><p>${v.title}</p></div><div class="notes-quality">★ 4.9 useful</div></div><div class="lesson-keywords">${v.points.map(x=>`<span>${x.split(':')[0].split(';')[0]}</span>`).join('')}</div><div class="notes-cta-row"><button class="notes-cta-primary" id="notesOpen">Open full notes</button><button class="notes-cta-download" id="notesDownload">⬇ Download</button></div><div class="notes-full" id="notesFull"><ul>${v.points.map(x=>`<li>${x}</li>`).join('')}</ul><div class="mini-panel"><b>Worked example:</b> ${v.example}</div></div><div class="note-rating"><span>Rate notes</span><div class="note-stars" id="noteStars">${[1,2,3,4,5].map(n=>`<button class="note-star" data-note-rating="${n}" aria-label="Rate notes ${n} out of 5">★</button>`).join('')}</div></div></div><div class="tuition-box tuition-refined"><div class="tuition-kicker">Private learning</div><h3>Learn with ${v.teacher}</h3><div class="tuition-offer"><div><div class="tuition-price">₹45 <span style="font-size:10px;color:var(--ink-soft)">/ hour</span></div></div><div class="tuition-duration"><label for="studyHours">Time</label><select id="studyHours"><option value="1">1 hour</option><option value="2">2 hours</option><option value="3">3 hours</option><option value="4">4 hours</option></select></div></div><p id="tutorEstimate" class="tuition-total">Total ₹45</p><button class="modal-action" id="tutorBook">Book a private lesson</button><div class="session-access" id="sessionAccess"><div class="session-access-top"><span class="session-access-title">🔗 Your live session</span><span class="session-status" id="sessionStatus">Available after acceptance</span></div><div class="session-link-slot" id="sessionLinkSlot"><span>Meet link</span><b>—</b></div><p class="session-access-note" id="sessionAccessNote">Civio creates the Google Meet automatically after the teacher accepts. No link setup needed. The link is for this session only and expires after it ends.</p></div></div>${recommendationHtml(v)}<div class="review-box"><h3>Reviews & feedback</h3><div class="review-form"><input id="reviewInput" placeholder="Share your experience..."><button id="reviewSubmit">Post</button></div><div id="reviewList">${reviewHtml(v.id)}</div></div></div>`;
+    lessonScreen.classList.add('show');
+    document.getElementById('lessonBack').onclick=()=>lessonScreen.classList.remove('show');
+    document.getElementById('trophyBtn').onclick=e=>{trophies.has(v.id)?trophies.delete(v.id):trophies.add(v.id);e.currentTarget.classList.toggle('active');e.currentTarget.textContent=trophies.has(v.id)?'🏆 Awarded':'🏆 Trophy';};
+    document.getElementById('saveLessonBtn').onclick=e=>{savedLessons.has(v.id)?savedLessons.delete(v.id):savedLessons.add(v.id);e.currentTarget.classList.toggle('active');e.currentTarget.textContent=savedLessons.has(v.id)?'✓ Saved':'🔖 Save';};
+    document.getElementById('notesOpen').onclick=e=>{const box=document.getElementById('notesFull');box.classList.toggle('show');e.currentTarget.textContent=box.classList.contains('show')?'Show less':'Open full notes';};
+    document.querySelectorAll('[data-note-rating]').forEach(star=>star.onclick=()=>{const rating=Number(star.dataset.noteRating);document.querySelectorAll('[data-note-rating]').forEach(s=>s.classList.toggle('active',Number(s.dataset.noteRating)<=rating));});
+    document.getElementById('notesDownload').onclick=e=>{e.stopPropagation();downloadTextFile(v.title.replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'-notes.txt',notesText(v));e.currentTarget.textContent='✓ Notes downloaded';};
+    document.querySelectorAll('[data-more-video]').forEach(card=>card.onclick=()=>{openTutorVideo(card.dataset.moreVideo);document.querySelector('.lesson-screen-body').scrollTo({top:0,behavior:'smooth'});});
+    document.getElementById('downloadBtn').onclick=e=>{downloadedLessons.add(v.id);e.currentTarget.classList.add('active');e.currentTarget.textContent='✓ Downloaded';const text=`${v.title}\n${v.teacher}\n\n${v.lesson}\n\n${v.points.join('\n')}\n\nExample: ${v.example}`;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/plain'}));a.download=v.title.replace(/[^a-z0-9]+/gi,'-').toLowerCase()+'.txt';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);};
+    const hours=document.getElementById('studyHours'),estimate=document.getElementById('tutorEstimate');hours.addEventListener('change',()=>estimate.textContent='Total: ₹'+(Number(hours.value)*45));document.getElementById('tutorBook').onclick=()=>{const access=document.getElementById('sessionAccess'),status=document.getElementById('sessionStatus'),slot=document.getElementById('sessionLinkSlot'),note=document.getElementById('sessionAccessNote'),btn=document.getElementById('tutorBook');status.textContent='Request sent';slot.innerHTML='<span>Meet link</span><b>Waiting for teacher</b>';note.textContent='Once '+v.teacher.split(' ')[0]+' accepts, Civio will automatically place the one-time Google Meet link here for both of you.';btn.textContent='Request sent ✓';btn.disabled=true;showMessage('Private lesson requested','Your request has been sent to '+v.teacher+'. After the teacher accepts, Civio will automatically provide the one-time Google Meet link to both of you.');};
+    document.getElementById('reviewSubmit').onclick=()=>{const input=document.getElementById('reviewInput'),text=input.value.trim();if(!text)return;(lessonReviews[v.id]||(lessonReviews[v.id]=[])).unshift({name:'You',text:text.replace(/[<>]/g,'')});input.value='';document.getElementById('reviewList').innerHTML=reviewHtml(v.id);};
+  }
+  function renderTutorSearch(query){activeTutorVideo=null;const q=query.trim().toLowerCase();if(!q){renderTutorHome();return;}const terms=q.split(/\s+/).filter(Boolean);const matches=tutorVideos.filter(v=>{const hay=(v.title+' '+v.topic+' '+v.teacher+' '+v.keywords.join(' ')).toLowerCase();return terms.every(term=>hay.includes(term));});tutorHome.innerHTML=`<h3 class="search-result-head">Lessons for “${query.replace(/[<>]/g,'')}”</h3><div class="tutor-feed">${matches.length?matches.map(v=>videoCard(v)).join(''):'<div class="no-video-results">No matching lessons yet.</div>'}</div>`;bindTutorVideoCards();}
+
+
+  const chipRow = document.getElementById('chipRow');
+  const mainCategoryChips = chipRow.innerHTML;
+  const handicraftSubsections = [
+    'Home Decor',
+    'Accessories',
+    'Pottery',
+    'Textile Craft',
+    'Woodwork',
+    'Metal Crafts',
+    'Paperwork',
+    'Miscellaneous Crafts'
+  ];
+
+  function bindCategoryChips(){
+    chipRow.querySelectorAll('.chip[data-cat]').forEach(chip=>{
+      chip.addEventListener('click',()=>setActiveCategory(chip.dataset.cat));
+    });
+    chipRow.querySelectorAll('.chip[data-craft-sub]').forEach(chip=>{
+      chip.addEventListener('click',()=>{
+        chipRow.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+        chip.classList.add('active');
+        activeCategory='handicraft';
+        filterListings();
+        content.scrollTo({top:0,behavior:'smooth'});
+      });
+    });
+  }
+
+  function renderMainCategoryChips(cat){
+    chipRow.innerHTML = mainCategoryChips;
+    chipRow.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active',c.dataset.cat===cat));
+    bindCategoryChips();
+  }
+
+  function renderHandicraftSubsections(){
+    chipRow.innerHTML = handicraftSubsections.map((name,index)=>
+      `<div class="chip${index===0?' active':''}" data-craft-sub="${name}">${name}</div>`
+    ).join('');
+    bindCategoryChips();
+  }
+
+
+  function prepareHandicraftPinterest(){
+    document.querySelectorAll('.card[data-cat="handicraft"]').forEach((card,cardIndex)=>{
+      if(card.querySelector('.craft-gallery'))return;
+      const oldThumb=card.querySelector('.thumb.handicraft'); if(!oldThumb)return;
+      const emoji=(oldThumb.querySelector('span:last-child')?.textContent||'🎨').trim();const sourceImage=oldThumb.querySelector('img')?.getAttribute('src');
+      const fav=oldThumb.querySelector('.fav-btn');
+      const gallery=document.createElement('div'); gallery.className='craft-gallery'; gallery.dataset.index='0';
+      gallery.innerHTML=`<div class="craft-track">${[0,1,2,3].map(()=>`<div class="craft-slide">${sourceImage?`<img src="${sourceImage}" alt="Product image" style="width:100%;height:100%;object-fit:cover">`:emoji}</div>`).join('')}</div><div class="craft-dots">${[0,1,2,3].map((_,i)=>`<span class="craft-dot${i===0?' active':''}"></span>`).join('')}</div>`;
+      if(sourceImage){const item=serviceCatalog.find(x=>x.id===card.dataset.id);if(item?.images?.length){gallery.querySelector('.craft-track').innerHTML=item.images.map(file=>`<div class="craft-slide"><img src="assets/services/${encodeURIComponent(file)}" alt="${esc(item.title)}" style="width:100%;height:100%;object-fit:cover"></div>`).join('');gallery.querySelector('.craft-dots').innerHTML=item.images.map((_,i)=>`<span class="craft-dot${i===0?' active':''}"></span>`).join('');}}if(fav)gallery.appendChild(fav); oldThumb.replaceWith(gallery);
+      const track=gallery.querySelector('.craft-track'),dots=[...gallery.querySelectorAll('.craft-dot')]; let startX=0,startY=0,moved=false;
+      const go=i=>{i=Math.max(0,Math.min(dots.length-1,i));gallery.dataset.index=i;track.style.transform=`translateX(-${i*100}%)`;dots.forEach((d,n)=>d.classList.toggle('active',n===i));};
+      gallery.addEventListener('pointerdown',e=>{startX=e.clientX;startY=e.clientY;moved=false;gallery.setPointerCapture?.(e.pointerId);});
+      gallery.addEventListener('pointermove',e=>{if(Math.abs(e.clientX-startX)>8)moved=true;});
+      gallery.addEventListener('pointerup',e=>{const dx=e.clientX-startX,dy=e.clientY-startY;if(Math.abs(dx)>35&&Math.abs(dx)>Math.abs(dy)){go(Number(gallery.dataset.index)+(dx<0?1:-1));card.dataset.justSwiped='1';setTimeout(()=>delete card.dataset.justSwiped,120);} });
+      gallery.addEventListener('click',e=>{if(moved)e.stopPropagation();});
+    });
+  }
+  prepareHandicraftPinterest();
+
+  function setActiveCategory(cat){
+    activeCategory = cat;
+    searchInput.value='';
+    searchInput.placeholder = cat==='tutor' ? 'Search a topic to learn…' : 'Search for a tiffin, handicraft, tutor…';
+    document.getElementById('listings').classList.toggle('craft-pinterest',cat==='handicraft');
+    document.querySelectorAll('.nav-item').forEach(n=> n.classList.toggle('active', n.dataset.cat===cat));
+    if(cat==='handicraft') renderHandicraftSubsections();
+    else if(cat==='tutor') renderTutorTopics();
+    else renderMainCategoryChips(cat);
+    sectionHead.style.display = cat==='tutor' ? 'none' : '';
+    tutorHome.classList.toggle('show',cat==='tutor');
+    if(cat==='tutor') renderTutorHome();
+    filterListings();
+    content.scrollTo({top:0, behavior:'smooth'});
+  }
+  function filterListings(){
+    const q=(searchInput.value||'').trim().toLowerCase(); let visible=0;
+    const craftProductScreen=document.getElementById('craftProductScreen'),craftProductBody=document.getElementById('craftProductBody');
+  let activeCraftCard=null;
+  const craftReviews={
+    'Handmade Macrame Wall Hanging':[{name:'Meera',text:'Beautiful finish and the knots feel very sturdy.'},{name:'Riya',text:'Looks lovely on my bedroom wall.'}],
+    'Personalised Knitted Sweater':[{name:'Aman',text:'Soft material and the custom initials came out nicely.'}],
+    'Hand-painted Blue Pottery Set':[{name:'Kavya',text:'Colours were vibrant and packaging was secure.'}]
+  };
+  function craftProductData(card){
+    const name=card.querySelector('.card-title')?.textContent||'Handmade product',price=card.querySelector('.price')?.childNodes[0]?.textContent.trim()||'₹650',seller=(card.querySelector('.card-sub')?.textContent||'Civio artisan').split(' · ')[0],rating=(card.querySelector('.rating')?.textContent||'★ 4.8 (24)').trim();
+    const emoji=(card.querySelector('.craft-slide')?.textContent||'🎨').trim();
+    const pottery=name.toLowerCase().includes('pottery'),sweater=name.toLowerCase().includes('sweater');
+    return {name,price,seller,rating,emoji,image:card.querySelector('.craft-slide img')?.getAttribute('src')||'',variants:pottery?['🏺','🏺','🏺']:sweater?['🎁','🧶','🧥']:['🧶','🤎','🤍'],variantNames:pottery?['Indigo','Terracotta','Ivory']:sweater?['Rose','Cocoa','Cream']:['Natural','Earth','Ivory'],material:pottery?'Glazed ceramic':sweater?'Soft knit yarn':'Cotton macrame cord',use:pottery?'Serveware / decor':sweater?'Wearable / gifting':'Wall decor',care:pottery?'Hand wash recommended':sweater?'Gentle hand wash':'Dust gently; keep dry'};
+  }
+  function craftPane(d,key){
+    if(key==='spec')return `<div class="spec-grid"><div class="spec-cell"><span>Seller</span><b>${d.seller}</b></div><div class="spec-cell"><span>Material</span><b>${d.material}</b></div><div class="spec-cell"><span>Category</span><b>Handicraft</b></div><div class="spec-cell"><span>Best for</span><b>${d.use}</b></div><div class="spec-cell"><span>Care</span><b>${d.care}</b></div><div class="spec-cell"><span>Made in</span><b>India</b></div></div>`;
+    if(key==='desc')return `<p>Made in small batches by an independent Civio seller. The listing can include handmade variations in colour, texture and finish. Seller-provided dimensions, materials, care instructions and customisation notes appear here before purchase.</p>`;
+    if(key==='custom')return `<p><b>Seller customisation:</b> Buyers can request colours, names, sizing or small design changes when the seller enables them. Final feasibility and any extra price must be confirmed before the order is accepted.</p>`;
+    return `<p><b>What makes it special:</b> artisan-made, seller-listed and designed for gifting or everyday use. Browse all gallery images and variants before ordering.</p><div class="work-tags"><span>Handmade</span><span>Seller verified</span><span>Customisable</span></div>`;
+  }
+  function openCraftProduct(card){
+    activeCraftCard=card;const d=craftProductData(card),reviews=craftReviews[d.name]||[];
+    craftProductBody.innerHTML=`<div class="product-hero" id="productHero">${d.image?`<img src="${d.image}" alt="${esc(d.name)}" style="width:100%;height:100%;object-fit:cover">`:`<span id="productHeroEmoji">${d.emoji}</span>`}<div class="product-hero-actions"><button id="productWish" aria-label="Add to wishlist">♡</button><button id="productShare" aria-label="Share product">↗</button></div><div class="product-gallery-dots"><span class="active"></span><span></span><span></span><span></span></div></div><div class="product-rating-bar"><button type="button" class="rating-chip review-jump" id="craftReviewJump" aria-label="Read ratings and reviews"><span class="review-star">★</span><span class="review-score">${(d.rating.match(/[0-9.]+/)||['4.8'])[0]}</span><span class="review-count">· ${(d.rating.match(/\((\d+)\)/)||['','0'])[1]} reviews</span></button></div><h2 class="product-title">${d.name}</h2><div class="product-seller">Sold by ${d.seller} · Civio artisan</div><div class="product-price">${d.price}</div><section class="product-section"><h3>Choose an option</h3><div class="variant-row">${d.variants.map((x,i)=>`<button class="variant-card${i===0?' active':''}" data-variant="${i}" aria-label="${d.variantNames[i]}">${x}</button>`).join('')}</div><p id="variantLabel" style="font-size:10.5px;color:var(--ink-soft);font-weight:700;margin:8px 1px 0">Selected: ${d.variantNames[0]}</p></section><section class="product-section"><h3>Delivery details</h3><div class="delivery-row"><div class="delivery-icon">⌂</div><div><b>Delivery to your saved address</b><span>Address can be selected or changed at checkout.</span></div></div><div class="delivery-row"><div class="delivery-icon">🚚</div><div><b>Estimated delivery: 7 days</b><span>Handicraft orders currently use a one-week delivery window after seller acceptance.</span></div></div><div class="delivery-row"><div class="delivery-icon">🏪</div><div><b>Sold by ${d.seller}</b><span>Order status and seller confirmation will be shown in Civio.</span></div></div><div class="work-tags"><span>7-day delivery</span><span>Secure order preview</span><span>Support available</span></div></section><section class="product-section"><h3>Everything about this product</h3><div class="detail-tabs"><button class="detail-tab active" data-detail-tab="show">Showcase</button><button class="detail-tab" data-detail-tab="spec">Specifications</button><button class="detail-tab" data-detail-tab="desc">Description</button><button class="detail-tab" data-detail-tab="custom">Customisation</button></div><div class="detail-pane" id="craftDetailPane">${craftPane(d,'show')}</div></section><section class="product-section" id="craftReviews"><h3>Ratings & reviews</h3><div class="craft-review-summary"><div class="craft-review-score">${(d.rating.match(/[0-9.]+/)||['4.8'])[0]}</div><div><div class="craft-review-stars">★★★★★</div><div style="font-size:10px;color:var(--ink-soft);font-weight:700">Verified buyer feedback</div></div></div>${reviews.map(r=>`<div class="craft-review-item"><b>${r.name}</b><br>${r.text}${r.photo?`<img class="craft-review-photo" src="${r.photo}" alt="Photo shared with review">`:''}</div>`).join('')||'<div class="craft-review-item">No written reviews yet.</div>'}<div class="craft-review-form"><input type="text" id="craftReviewInput" placeholder="Write a review..."><label class="craft-photo-label" for="craftReviewPhoto" title="Add a photo">📷 <span style="margin-left:4px">Photo</span></label><input class="craft-photo-input" type="file" id="craftReviewPhoto" accept="image/*"><button id="craftReviewPost">Post</button></div><div class="craft-photo-preview" id="craftPhotoPreview"><img id="craftPhotoPreviewImg" alt="Selected review photo preview"><span id="craftPhotoName"></span><button class="craft-photo-remove" id="craftPhotoRemove" type="button" aria-label="Remove selected photo">×</button></div></section>`;
+    craftProductScreen.classList.add('show');
+    document.getElementById('productWish').textContent=favouriteIds.has(listingId(card))?'♥':'♡';document.getElementById('productWish').onclick=async e=>{await saveFavourite(listingId(card));e.currentTarget.textContent=favouriteIds.has(listingId(card))?'♥':'♡';};
+    const share=()=>shareCraftProduct(d);document.getElementById('productShare').onclick=share;document.getElementById('craftProductShare').onclick=share;
+    document.querySelectorAll('[data-variant]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-variant]').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById('variantLabel').textContent='Selected: '+d.variantNames[Number(b.dataset.variant)];const heroEmoji=document.getElementById('productHeroEmoji');if(heroEmoji)heroEmoji.textContent=d.variants[Number(b.dataset.variant)];});
+    document.querySelectorAll('[data-detail-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-detail-tab]').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById('craftDetailPane').innerHTML=craftPane(d,b.dataset.detailTab);});
+    document.getElementById('craftReviewJump').onclick=()=>document.getElementById('craftReviews').scrollIntoView({behavior:'smooth',block:'start'});
+    const reviewPhotoInput=document.getElementById('craftReviewPhoto'),reviewPhotoPreview=document.getElementById('craftPhotoPreview'),reviewPhotoImg=document.getElementById('craftPhotoPreviewImg'),reviewPhotoName=document.getElementById('craftPhotoName');let pendingReviewPhoto='';
+    reviewPhotoInput.onchange=()=>{const file=reviewPhotoInput.files&&reviewPhotoInput.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{pendingReviewPhoto=reader.result;reviewPhotoImg.src=pendingReviewPhoto;reviewPhotoName.textContent=file.name;reviewPhotoPreview.classList.add('show');};reader.readAsDataURL(file);};
+    document.getElementById('craftPhotoRemove').onclick=()=>{pendingReviewPhoto='';reviewPhotoInput.value='';reviewPhotoImg.removeAttribute('src');reviewPhotoName.textContent='';reviewPhotoPreview.classList.remove('show');};
+    document.getElementById('craftReviewPost').onclick=()=>{const i=document.getElementById('craftReviewInput'),t=i.value.trim();if(!t&&!pendingReviewPhoto)return;(craftReviews[d.name]||(craftReviews[d.name]=[])).unshift({name:'You',text:(t||'Photo review').replace(/[<>]/g,''),photo:pendingReviewPhoto});openCraftProduct(card);document.getElementById('craftReviews').scrollIntoView();};
+    history.replaceState(null,'',location.pathname+'#craft='+encodeURIComponent(d.name));
+  }
+  function shareCraftProduct(d){const url=location.href.split('#')[0]+'#craft='+encodeURIComponent(d.name),data={title:d.name,text:`${d.name} on Civio`,url};if(navigator.share)navigator.share(data).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>showMessage('Product link copied','The Civio product link is ready to share. Opening it takes the recipient directly to this product in the platform.'));else showMessage('Share product',url);}
+  document.getElementById('craftProductBack').onclick=()=>{craftProductScreen.classList.remove('show');history.replaceState(null,'',location.pathname);};
+  document.getElementById('craftAddCart').onclick=()=>showMessage('Added to cart','This handicraft has been added to your Civio cart preview.');
+  document.getElementById('craftBuyNow').onclick=()=>showMessage('Order preview','Your selected handicraft is ready for checkout. Delivery is currently estimated at 7 days.');
+  function openCraftFromHash(){if(!location.hash.startsWith('#craft='))return;const name=decodeURIComponent(location.hash.slice(7));const card=cards.find(c=>c.dataset.cat==='handicraft'&&c.querySelector('.card-title')?.textContent===name);if(card){if(authGate.style.display!=='none' && !civioUser)enterCivio('Guest');setActiveCategory('handicraft');setTimeout(()=>openCraftProduct(card),20);}}
+  window.addEventListener('hashchange',openCraftFromHash);
+  cards.forEach(card=>{
+      const categoryMatch=activeCategory==='all'||card.dataset.cat===activeCategory;
+      const textMatch=!q||card.innerText.toLowerCase().includes(q);
+      const show=activeCategory==='tutor' ? false : (categoryMatch&&textMatch);
+      card.style.display=show?'':'none'; if(show)visible++;
+    });
+    emptyMsg.style.display=visible===0?'block':'none';
+  }
+  document.querySelectorAll('.nav-item').forEach(btn=>btn.addEventListener('click',()=>setActiveCategory(btn.dataset.cat)));
+  bindCategoryChips();
+  searchInput.addEventListener('input',()=>{ if(activeCategory==='tutor') renderTutorSearch(searchInput.value); else filterListings(); });
+
+  function showModal(title, body){
+    detailTitle.textContent=title; detailBody.innerHTML=body; backdrop.classList.add('show');
+    const close=()=>backdrop.classList.remove('show');
+    document.getElementById('detailClose').onclick=close;
+  }
+  backdrop.addEventListener('click',e=>{if(e.target===backdrop)backdrop.classList.remove('show')});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')backdrop.classList.remove('show')});
+  function showMessage(title,message){
+    showModal(title,`<p>${message}</p><button class="modal-action" id="modalOkay">Okay</button>`);
+    document.getElementById('modalOkay').onclick=()=>backdrop.classList.remove('show');
+  }
+
+  const turnaround = {
+    "Saree blouse":3,"Salwar kameez / suit":5,"Anarkali suit":5,"Lehenga choli":7,"Patiala salwar suit":3,
+    "Sharara / gharara set":5,"Phulkari / Chikankari kurti":3,"Chaniya choli":7,"Angrakha":4,"Kediya":5,
+    "Pattu pavadai":2,"Kerala kasavu set mundu":2,"Madisar blouse":3,"Mekhela chador":2,"Phanek and Innaphi":2,
+    "Simple kurta pyjama":2,"Pathani suit":3,"Nehru jacket / Modi vest":4,"Sherwani / Jodhpuri suit":7,
+    "Formal shirt":2,"Trousers / formal pants":3,"Two-piece suit":7,
+    "Saree fall and pico":0.25,"Tucking / fitting alterations":0.25,"Jeans / trousers hemming":0.25,
+    "Blouse hook / eye repair and darning (Rafu)":0.25
+  };
+  function tailoringDetails(name){
+    const options=Object.entries(turnaround).map(([n,d])=>`<option value="${d}">${n} — ${d<1?'6 hours':d+' days'}</option>`).join('');
+    return `<p>Browse the tailor's <b>SHOP</b> to compare verified reviews, customer feedback, and photos/videos of previous work. Portfolio reviews should only be posted by the customer whose order is shown.</p>
+      <div class="work-tags"><span>Reviews</span><span>Work gallery</span><span>Order tracking</span></div>
+      <label for="garment">Choose garment / service</label><select id="garment">${options}</select>
+      <label for="tailorNotes">Measurements or instructions</label><textarea id="tailorNotes" rows="3" placeholder="Add fit preferences, measurements, or notes"></textarea>
+      <label><input type="checkbox" id="urgent" style="width:auto"> I need urgent delivery (extra fee quoted by tailor)</label>
+      <div class="mini-panel" id="turnaroundInfo">Typical completion time: 3 days. Actual availability is confirmed by the tailor.</div>
+      <button class="modal-action" id="tailorBook">Request booking</button>`;
+  }
+  function tutorDetails(){
+    return `<p><b>Classroom</b> profiles show qualifications, subjects, hourly rates and student reviews. Tutor applicants must pass Civio's interview and professor/academic approval before their classroom becomes visible.</p>
+      <div class="mini-panel">One-on-one tuition rate: ₹45 per hour.</div>
+      <label for="studyHours">Study duration</label><select id="studyHours"><option value="1">1 hour</option><option value="2">2 hours</option><option value="3">3 hours</option><option value="4">4 hours</option></select>
+      <p id="tutorEstimate" class="price-estimate">Estimated total: ₹45</p>
+      <button class="modal-action" id="tutorBook">Request a session</button>`;
+  }
+  function handicraftDetails(card){
+    const distance=Number(card.dataset.distance||2);
+    const price=Number(card.dataset.price||650);
+    const local=distance<=5;
+    return `<p>Products within 5 km are prioritised for local delivery. Items from farther away can still be ordered with an estimated intercity shipping amount shown separately before checkout.</p>
+      <div class="mini-panel">${local?'Within the 5 km local-delivery radius.':'Outside the 5 km radius: intercity shipping may apply.'} Final shipping is calculated from seller location, destination, package size and courier quote.</div>
+      <label for="customText">Personalisation / customisation (optional)</label><textarea id="customText" rows="3" placeholder="Colours, name, size, or other requested changes"></textarea>
+      <label><input type="checkbox" id="customCheck" style="width:auto"> This order is customised</label>
+      <div class="price-estimate" id="craftEstimate">Illustrative item price: ₹${price}${local?' + local delivery':' + estimated shipping'}</div>
+      <div class="mini-panel" id="refundInfo">Standard item: return/refund may be requested if unused and undamaged, subject to the published return policy and applicable consumer law.</div>
+      <button class="modal-action" id="craftCheckout">Continue to order preview</button>`;
+  }
+  function showProviderForm(){
+    showModal('Become a provider',`<p>Choose the provider path. All details here are a demo; applications are not submitted to a server.</p>
+      <label for="providerType">I want to join as</label><select id="providerType"><option>Handicraft seller</option><option>Home-cooked meal provider</option><option>Tutor applicant</option></select>
+      <label for="providerName">Name / business name</label><input id="providerName" placeholder="Enter your name">
+      <label for="providerContact">Contact email or phone</label><input id="providerContact" placeholder="Enter contact details">
+      <button class="modal-action" id="providerSubmit">Preview application</button>`);
+    document.getElementById('providerSubmit').onclick=()=>showMessage('Application preview','Your provider application preview is ready. In the production app, identity checks, document upload, interviews/approval (for tutors), and secure server submission must be implemented.');
+  }
+
+  const craftProductScreen=document.getElementById('craftProductScreen'),craftProductBody=document.getElementById('craftProductBody');
+  let activeCraftCard=null;
+  const craftReviews={
+    'Handmade Macrame Wall Hanging':[{name:'Meera',text:'Beautiful finish and the knots feel very sturdy.'},{name:'Riya',text:'Looks lovely on my bedroom wall.'}],
+    'Personalised Knitted Sweater':[{name:'Aman',text:'Soft material and the custom initials came out nicely.'}],
+    'Hand-painted Blue Pottery Set':[{name:'Kavya',text:'Colours were vibrant and packaging was secure.'}]
+  };
+  function craftProductData(card){
+    const name=card.querySelector('.card-title')?.textContent||'Handmade product',price=card.querySelector('.price')?.childNodes[0]?.textContent.trim()||'₹650',seller=(card.querySelector('.card-sub')?.textContent||'Civio artisan').split(' · ')[0],rating=(card.querySelector('.rating')?.textContent||'★ 4.8 (24)').trim();
+    const emoji=(card.querySelector('.craft-slide')?.textContent||'🎨').trim();
+    const pottery=name.toLowerCase().includes('pottery'),sweater=name.toLowerCase().includes('sweater');
+    return {name,price,seller,rating,emoji,image:card.querySelector('.craft-slide img')?.getAttribute('src')||'',variants:pottery?['🏺','🏺','🏺']:sweater?['🎁','🧶','🧥']:['🧶','🤎','🤍'],variantNames:pottery?['Indigo','Terracotta','Ivory']:sweater?['Rose','Cocoa','Cream']:['Natural','Earth','Ivory'],material:pottery?'Glazed ceramic':sweater?'Soft knit yarn':'Cotton macrame cord',use:pottery?'Serveware / decor':sweater?'Wearable / gifting':'Wall decor',care:pottery?'Hand wash recommended':sweater?'Gentle hand wash':'Dust gently; keep dry'};
+  }
+  function craftPane(d,key){
+    if(key==='spec')return `<div class="spec-grid"><div class="spec-cell"><span>Seller</span><b>${d.seller}</b></div><div class="spec-cell"><span>Material</span><b>${d.material}</b></div><div class="spec-cell"><span>Category</span><b>Handicraft</b></div><div class="spec-cell"><span>Best for</span><b>${d.use}</b></div><div class="spec-cell"><span>Care</span><b>${d.care}</b></div><div class="spec-cell"><span>Made in</span><b>India</b></div></div>`;
+    if(key==='desc')return `<p>Made in small batches by an independent Civio seller. The listing can include handmade variations in colour, texture and finish. Seller-provided dimensions, materials, care instructions and customisation notes appear here before purchase.</p>`;
+    if(key==='custom')return `<p><b>Seller customisation:</b> Buyers can request colours, names, sizing or small design changes when the seller enables them. Final feasibility and any extra price must be confirmed before the order is accepted.</p>`;
+    return `<p><b>What makes it special:</b> artisan-made, seller-listed and designed for gifting or everyday use. Browse all gallery images and variants before ordering.</p><div class="work-tags"><span>Handmade</span><span>Seller verified</span><span>Customisable</span></div>`;
+  }
+  function openCraftProduct(card){
+    activeCraftCard=card;const d=craftProductData(card),reviews=craftReviews[d.name]||[];
+    craftProductBody.innerHTML=`<div class="product-hero" id="productHero">${d.image?`<img src="${d.image}" alt="${esc(d.name)}" style="width:100%;height:100%;object-fit:cover">`:`<span id="productHeroEmoji">${d.emoji}</span>`}<div class="product-hero-actions"><button id="productWish" aria-label="Add to wishlist">♡</button><button id="productShare" aria-label="Share product">↗</button></div><div class="product-gallery-dots"><span class="active"></span><span></span><span></span><span></span></div></div><div class="product-rating-bar"><button type="button" class="rating-chip review-jump" id="craftReviewJump" aria-label="Read ratings and reviews"><span class="review-star">★</span><span class="review-score">${(d.rating.match(/[0-9.]+/)||['4.8'])[0]}</span><span class="review-count">· ${(d.rating.match(/\((\d+)\)/)||['','0'])[1]} reviews</span></button></div><h2 class="product-title">${d.name}</h2><div class="product-seller">Sold by ${d.seller} · Civio artisan</div><div class="product-price">${d.price}</div><section class="product-section"><h3>Choose an option</h3><div class="variant-row">${d.variants.map((x,i)=>`<button class="variant-card${i===0?' active':''}" data-variant="${i}" aria-label="${d.variantNames[i]}">${x}</button>`).join('')}</div><p id="variantLabel" style="font-size:10.5px;color:var(--ink-soft);font-weight:700;margin:8px 1px 0">Selected: ${d.variantNames[0]}</p></section><section class="product-section"><h3>Delivery details</h3><div class="delivery-row"><div class="delivery-icon">⌂</div><div><b>Delivery to your saved address</b><span>Address can be selected or changed at checkout.</span></div></div><div class="delivery-row"><div class="delivery-icon">🚚</div><div><b>Estimated delivery: 7 days</b><span>Handicraft orders currently use a one-week delivery window after seller acceptance.</span></div></div><div class="delivery-row"><div class="delivery-icon">🏪</div><div><b>Sold by ${d.seller}</b><span>Order status and seller confirmation will be shown in Civio.</span></div></div><div class="work-tags"><span>7-day delivery</span><span>Secure order preview</span><span>Support available</span></div></section><section class="product-section"><h3>Everything about this product</h3><div class="detail-tabs"><button class="detail-tab active" data-detail-tab="show">Showcase</button><button class="detail-tab" data-detail-tab="spec">Specifications</button><button class="detail-tab" data-detail-tab="desc">Description</button><button class="detail-tab" data-detail-tab="custom">Customisation</button></div><div class="detail-pane" id="craftDetailPane">${craftPane(d,'show')}</div></section><section class="product-section" id="craftReviews"><h3>Ratings & reviews</h3><div class="craft-review-summary"><div class="craft-review-score">${(d.rating.match(/[0-9.]+/)||['4.8'])[0]}</div><div><div class="craft-review-stars">★★★★★</div><div style="font-size:10px;color:var(--ink-soft);font-weight:700">Verified buyer feedback</div></div></div>${reviews.map(r=>`<div class="craft-review-item"><b>${r.name}</b><br>${r.text}${r.photo?`<img class="craft-review-photo" src="${r.photo}" alt="Photo shared with review">`:''}</div>`).join('')||'<div class="craft-review-item">No written reviews yet.</div>'}<div class="craft-review-form"><input type="text" id="craftReviewInput" placeholder="Write a review..."><label class="craft-photo-label" for="craftReviewPhoto" title="Add a photo">📷 <span style="margin-left:4px">Photo</span></label><input class="craft-photo-input" type="file" id="craftReviewPhoto" accept="image/*"><button id="craftReviewPost">Post</button></div><div class="craft-photo-preview" id="craftPhotoPreview"><img id="craftPhotoPreviewImg" alt="Selected review photo preview"><span id="craftPhotoName"></span><button class="craft-photo-remove" id="craftPhotoRemove" type="button" aria-label="Remove selected photo">×</button></div></section>`;
+    craftProductScreen.classList.add('show');
+    document.getElementById('productWish').textContent=favouriteIds.has(listingId(card))?'♥':'♡';document.getElementById('productWish').onclick=async e=>{await saveFavourite(listingId(card));e.currentTarget.textContent=favouriteIds.has(listingId(card))?'♥':'♡';};
+    const share=()=>shareCraftProduct(d);document.getElementById('productShare').onclick=share;document.getElementById('craftProductShare').onclick=share;
+    document.querySelectorAll('[data-variant]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-variant]').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById('variantLabel').textContent='Selected: '+d.variantNames[Number(b.dataset.variant)];const heroEmoji=document.getElementById('productHeroEmoji');if(heroEmoji)heroEmoji.textContent=d.variants[Number(b.dataset.variant)];});
+    document.querySelectorAll('[data-detail-tab]').forEach(b=>b.onclick=()=>{document.querySelectorAll('[data-detail-tab]').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById('craftDetailPane').innerHTML=craftPane(d,b.dataset.detailTab);});
+    document.getElementById('craftReviewJump').onclick=()=>document.getElementById('craftReviews').scrollIntoView({behavior:'smooth',block:'start'}); const reviewPhotoInput=document.getElementById('craftReviewPhoto'),reviewPhotoPreview=document.getElementById('craftPhotoPreview'),reviewPhotoImg=document.getElementById('craftPhotoPreviewImg'),reviewPhotoName=document.getElementById('craftPhotoName');let pendingReviewPhoto=''; reviewPhotoInput.onchange=()=>{const file=reviewPhotoInput.files&&reviewPhotoInput.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{pendingReviewPhoto=reader.result;reviewPhotoImg.src=pendingReviewPhoto;reviewPhotoName.textContent=file.name;reviewPhotoPreview.classList.add('show');};reader.readAsDataURL(file);}; document.getElementById('craftPhotoRemove').onclick=()=>{pendingReviewPhoto='';reviewPhotoInput.value='';reviewPhotoImg.removeAttribute('src');reviewPhotoName.textContent='';reviewPhotoPreview.classList.remove('show');}; document.getElementById('craftReviewPost').onclick=()=>{const i=document.getElementById('craftReviewInput'),t=i.value.trim();if(!t&&!pendingReviewPhoto)return;(craftReviews[d.name]||(craftReviews[d.name]=[])).unshift({name:'You',text:(t||'Photo review').replace(/[<>]/g,''),photo:pendingReviewPhoto});openCraftProduct(card);document.getElementById('craftReviews').scrollIntoView();};
+    history.replaceState(null,'',location.pathname+'#craft='+encodeURIComponent(d.name));
+  }
+  function shareCraftProduct(d){const url=location.href.split('#')[0]+'#craft='+encodeURIComponent(d.name),data={title:d.name,text:`${d.name} on Civio`,url};if(navigator.share)navigator.share(data).catch(()=>{});else if(navigator.clipboard)navigator.clipboard.writeText(url).then(()=>showMessage('Product link copied','The Civio product link is ready to share. Opening it takes the recipient directly to this product in the platform.'));else showMessage('Share product',url);}
+  document.getElementById('craftProductBack').onclick=()=>{craftProductScreen.classList.remove('show');history.replaceState(null,'',location.pathname);};
+  document.getElementById('craftAddCart').onclick=()=>showMessage('Added to cart','This handicraft has been added to your Civio cart preview.');
+  document.getElementById('craftBuyNow').onclick=()=>showMessage('Order preview','Your selected handicraft is ready for checkout. Delivery is currently estimated at 7 days.');
+  function openCraftFromHash(){if(!location.hash.startsWith('#craft='))return;const name=decodeURIComponent(location.hash.slice(7));const card=cards.find(c=>c.dataset.cat==='handicraft'&&c.querySelector('.card-title')?.textContent===name);if(card){if(authGate.style.display!=='none' && !civioUser)enterCivio('Guest');setActiveCategory('handicraft');setTimeout(()=>openCraftProduct(card),20);}}
+  window.addEventListener('hashchange',openCraftFromHash);
+  cards.forEach(card=>{
+    card.addEventListener('click',e=>{
+      if(e.target.closest('.fav-btn')||card.dataset.justSwiped)return;
+      const cat=card.dataset.cat; const name=card.querySelector('.card-title')?.textContent||'Listing';
+      if(cat==='handicraft'){
+        openCraftProduct(card);
+      } else if(cat==='tailoring'){
+        showModal(name,tailoringDetails(name));
+        const garment=document.getElementById('garment'), urgent=document.getElementById('urgent'), info=document.getElementById('turnaroundInfo');
+        const refresh=()=>{const days=Number(garment.value);info.textContent='Typical completion time: '+(days<1?'6 hours':days+' days')+(urgent.checked?' · Urgent request selected; tailor must confirm availability and extra charge.':'. Actual availability is confirmed by the tailor.');};
+        garment.addEventListener('change',refresh);urgent.addEventListener('change',refresh);
+        document.getElementById('tailorBook').onclick=()=>showMessage('Booking request preview','Your tailoring request is ready for review. In a live app, the tailor must accept the order and confirm due date, measurements, price and any urgent fee.');
+      } else if(cat==='tutor'){
+        showModal(name,tutorDetails());
+        const hours=document.getElementById('studyHours'), estimate=document.getElementById('tutorEstimate');
+        const refresh=()=>{const h=Number(hours.value);estimate.textContent='Total: ₹'+(h*45);};
+        hours.addEventListener('change',refresh);
+        document.getElementById('tutorBook').onclick=()=>showMessage('Session request preview','Your tutoring session request is ready for review. Secure scheduling, tutor availability, payment and cancellation rules are not connected in this demo.');
+      } else {
+        showMessage(name,'This is a sample listing. Food remains as the original demo section; live bookings, payments and provider messaging are not connected.');
+      }
+    });
+  });
+  document.querySelector('.avatar-btn').addEventListener('click',()=>{if(!civioUser){authGate.style.display='flex';authGate.classList.remove('hidden');return;}showModal('Your Civio account',`<p>${esc(civioUser.email)}</p><button class="modal-action" id="civioSignout">Sign out</button>`);document.getElementById('civioSignout').onclick=async()=>{await civioDb.auth.signOut();backdrop.classList.remove('show');authGate.style.display='flex';authGate.classList.remove('hidden');};});
+  setTimeout(openCraftFromHash,0);
+</script>
+</body>
+</html>
+ 
+

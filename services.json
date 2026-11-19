@@ -1,0 +1,26 @@
+[
+  {
+    "id": "craft-sample-keychain",
+    "category": "handicraft",
+    "title": "Handmade Crochet Keychain (Sample)",
+    "seller": "Civio Demo Artisan",
+    "price": 149,
+    "distance_km": 1.5,
+    "rating": 4.8,
+    "review_count": 12,
+    "emoji": "🧶",
+    "images": ["sample-keychain.svg"]
+  },
+  {
+    "id": "food-sample-tiffin",
+    "category": "food",
+    "title": "Homestyle Tiffin (Sample)",
+    "seller": "Civio Demo Kitchen",
+    "price": 120,
+    "distance_km": 0.8,
+    "rating": 4.7,
+    "review_count": 9,
+    "emoji": "🍱",
+    "images": []
+  }
+]
